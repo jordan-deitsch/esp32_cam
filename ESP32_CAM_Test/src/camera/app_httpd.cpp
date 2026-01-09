@@ -695,17 +695,60 @@ static esp_err_t status_page_handler(httpd_req_t *req) {
         "<h2>ESP32-CAM Status</h2>"
         "<img src='/stream'>"
         "<p>Sensor value: <span id='v'>---</span></p>"
+        
         "<script>"
         "setInterval(()=>{"
         "fetch('/sensor').then(r=>r.text()).then(t=>v.innerText=t);"
         "},500);"
         "</script>"
+
+        "<button onclick=\"sendCommand()\">Toggle Motor</button>"
+        "<script>"
+        "function sendCommand() {"
+        "  fetch('/button_control?cmd=toggle_motor')"
+        "    .then(response => response.text())"
+        "    .then(data => {"
+        "      console.log('Response:', data);"
+        "      alert('Command sent!');"
+        "    })"
+        "    .catch(error => {"
+        "      console.error('Error:', error);"
+        "      alert('Failed to send command.');"
+        "    });"
+        "}"
+        "</script>"
+
         "</body>"
         "</html>";
 
     httpd_resp_set_type(req, "text/html");
     httpd_resp_send(req, html, HTTPD_RESP_USE_STRLEN);
     return ESP_OK;
+}
+
+extern volatile uint16_t buttonValue;
+
+static esp_err_t control_handler(httpd_req_t *req) {
+  char buf[100];
+  size_t buf_len = httpd_req_get_url_query_len(req) + 1;
+
+  if (buf_len > sizeof(buf)) {
+    return ESP_FAIL;
+  }
+  if (httpd_req_get_url_query_str(req, buf, buf_len) == ESP_OK) {
+    char param[32];
+    if (httpd_query_key_value(buf, "cmd", param, sizeof(param)) == ESP_OK) {
+      if (strcmp(param, "toggle_motor") == 0) {
+        // Your motor toggle code here
+        buttonValue = 1;
+        // e.g., digitalWrite(motorPin, !digitalRead(motorPin));
+        httpd_resp_sendstr(req, "Motor toggled");
+        return ESP_OK;
+      }
+    }
+  }
+  httpd_resp_sendstr(req, "Invalid command");
+  return ESP_OK;
 }
 
 void startCameraServer() {
@@ -869,6 +912,13 @@ void startCameraServer() {
     .user_ctx  = NULL
   };
 
+  httpd_uri_t control_uri = {
+    .uri = "/button_control",
+    .method = HTTP_GET,
+    .handler = control_handler,
+    .user_ctx = NULL
+  };
+
   ra_filter_init(&ra_filter, 20);
 
   log_i("Starting web server on port: '%d'", config.server_port);
@@ -887,6 +937,7 @@ void startCameraServer() {
     
     httpd_register_uri_handler(camera_httpd, &sensor_uri);
     httpd_register_uri_handler(camera_httpd, &adc_value_uri);
+    httpd_register_uri_handler(camera_httpd, &control_uri);
   }
 
   config.server_port += 1;

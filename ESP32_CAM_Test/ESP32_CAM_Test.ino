@@ -24,6 +24,7 @@ void setupLedFlash();
 ADS1015 adcSensor;
 
 volatile uint16_t sensorValue = 0;
+volatile uint16_t buttonValue = 0;
 
 void setup() {
   Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN, 400000); // 400kHz frequency
@@ -149,6 +150,11 @@ void loop() {
   sensorValue = adcSensor.getSingleEnded(3);
   Serial.print("A3:");
   Serial.println(sensorValue);
+
+  if(buttonValue != 0) {
+    Serial.println("Button Pressed");
+    buttonValue = 0;
+  }
 
   delay(100); // 100 msec delay
 }
