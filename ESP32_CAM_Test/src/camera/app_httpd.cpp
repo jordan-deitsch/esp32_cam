@@ -670,11 +670,12 @@ static esp_err_t index_handler(httpd_req_t *req) {
 extern volatile uint16_t sensorValue;
 
 static esp_err_t sensor_handler(httpd_req_t *req) {
-    char buf[16];
-    snprintf(buf, sizeof(buf), "Value: %u", sensorValue);
+    char json[64];
+    snprintf(json, sizeof(json),
+             "{\"value\": %u}", sensorValue);
 
-    httpd_resp_set_type(req, "text/plain");
-    httpd_resp_send(req, buf, HTTPD_RESP_USE_STRLEN);
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, json, HTTPD_RESP_USE_STRLEN);
     return ESP_OK;
 }
 
