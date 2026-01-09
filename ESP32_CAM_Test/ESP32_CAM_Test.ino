@@ -1,5 +1,7 @@
+#include "SparkFun_ADS1015_Arduino_Library.h"
 #include "esp_camera.h"
 #include <WiFi.h>
+#include <Wire.h>
 
 // ===========================
 // Select camera model in board_config.h
@@ -9,8 +11,8 @@
 // ===========================
 // Enter your WiFi credentials
 // ===========================
-const char *ssid = "********";
-const char *password = "********";
+const char *ssid = "LogIntoMordor";
+const char *password = "1network2rule";
 
 // Define your custom I2C pins
 #define I2C_SDA_PIN 13
@@ -19,10 +21,25 @@ const char *password = "********";
 void startCameraServer();
 void setupLedFlash();
 
+ADS1015 adcSensor;
+
+volatile uint16_t sensorValue = 0;
+
 void setup() {
+  Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN, 400000); // 400kHz frequency
   Serial.begin(115200);
   Serial.setDebugOutput(true);
   Serial.println();
+
+  if (adcSensor.begin() == true)
+  {
+    Serial.println("Device found. I2C connections are good.");
+  }
+  else
+  {
+    Serial.println("Device not found. Check wiring.");
+    while (1); // stall out forever
+  }
 
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
@@ -129,5 +146,9 @@ void setup() {
 }
 
 void loop() {
+  sensorValue = adcSensor.getSingleEnded(3);
+  Serial.print("A3:");
+  Serial.println(sensorValue);
+
   delay(100); // 100 msec delay
 }
