@@ -1,6 +1,9 @@
 # esp32_cam
 Development repository for ESP32-CAM microcontroller
 
+ESP32-CAM Pinout Guide:
+https://lastminuteengineers.com/esp32-cam-pinout-reference/
+
 Update ssid with network ID
 Update password with network password
 
