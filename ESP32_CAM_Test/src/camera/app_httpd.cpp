@@ -667,6 +667,46 @@ static esp_err_t index_handler(httpd_req_t *req) {
   }
 }
 
+extern volatile uint16_t sensorValue;
+
+static esp_err_t sensor_handler(httpd_req_t *req) {
+    char buf[16];
+    snprintf(buf, sizeof(buf), "Value: %u", sensorValue);
+
+    httpd_resp_set_type(req, "text/plain");
+    httpd_resp_send(req, buf, HTTPD_RESP_USE_STRLEN);
+    return ESP_OK;
+}
+
+static esp_err_t status_page_handler(httpd_req_t *req) {
+    const char html[] =
+        "<!DOCTYPE html>"
+        "<html>"
+        "<head>"
+        "<meta name='viewport' content='width=device-width, initial-scale=1'>"
+        "<title>ESP32-CAM Status</title>"
+        "<style>"
+        "body{font-family:Arial;text-align:center;background:#111;color:#eee;}"
+        "img{width:100%;max-width:480px;}"
+        "</style>"
+        "</head>"
+        "<body>"
+        "<h2>ESP32-CAM Status</h2>"
+        "<img src='/stream'>"
+        "<p>Sensor value: <span id='v'>---</span></p>"
+        "<script>"
+        "setInterval(()=>{"
+        "fetch('/sensor').then(r=>r.text()).then(t=>v.innerText=t);"
+        "},500);"
+        "</script>"
+        "</body>"
+        "</html>";
+
+    httpd_resp_set_type(req, "text/html");
+    httpd_resp_send(req, html, HTTPD_RESP_USE_STRLEN);
+    return ESP_OK;
+}
+
 void startCameraServer() {
   httpd_config_t config = HTTPD_DEFAULT_CONFIG();
   config.max_uri_handlers = 16;
@@ -814,6 +854,20 @@ void startCameraServer() {
 #endif
   };
 
+  httpd_uri_t sensor_uri = {
+    .uri       = "/sensor",
+    .method    = HTTP_GET,
+    .handler   = sensor_handler,
+    .user_ctx  = NULL
+  };
+
+  httpd_uri_t adc_value_uri = {
+    .uri       = "/adc_value",
+    .method    = HTTP_GET,
+    .handler   = status_page_handler,
+    .user_ctx  = NULL
+  };
+
   ra_filter_init(&ra_filter, 20);
 
   log_i("Starting web server on port: '%d'", config.server_port);
@@ -829,6 +883,9 @@ void startCameraServer() {
     httpd_register_uri_handler(camera_httpd, &greg_uri);
     httpd_register_uri_handler(camera_httpd, &pll_uri);
     httpd_register_uri_handler(camera_httpd, &win_uri);
+    
+    httpd_register_uri_handler(camera_httpd, &sensor_uri);
+    httpd_register_uri_handler(camera_httpd, &adc_value_uri);
   }
 
   config.server_port += 1;
