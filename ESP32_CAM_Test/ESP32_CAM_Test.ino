@@ -1,5 +1,11 @@
-#include "SparkFun_ADS1015_Arduino_Library.h"
 #include "esp_camera.h"
+#include "src/TimedFunction.h"
+#include "src/SX1509/SX1509.h"
+#include "src/ADS1015/ADS1015.h"
+
+// SparkFun Libraries
+#include <SparkFun_ADS1015_Arduino_Library.h>
+#include <SparkFunSX1509.h>
 #include <WiFi.h>
 #include <Wire.h>
 
@@ -21,8 +27,13 @@ const char *password = "1network2rule";
 void startCameraServer();
 void setupLedFlash();
 
+// ADS1015 12-bit ADC Instance
 ADS1015 adcSensor;
 
+// SX1509 16-bit GPIO Expander Instance
+SX1509 gpio;                      // Create an SX1509 object to be used throughout
+
+// Webserver global variables
 volatile uint16_t sensorValue = 0;
 volatile uint16_t buttonValue = 0;
 
@@ -32,15 +43,30 @@ void setup() {
   Serial.setDebugOutput(true);
   Serial.println();
 
+  // Initialize ADC
   if (adcSensor.begin() == true)
   {
-    Serial.println("Device found. I2C connections are good.");
+    Serial.println("ADS1015 Device found. I2C connections are good.");
   }
   else
   {
-    Serial.println("Device not found. Check wiring.");
+    Serial.println("ADS1015 Device not found. Check wiring.");
     while (1); // stall out forever
   }
+
+  // Initialize GPIO expander
+  if (gpio.begin(SX1509_ADDRESS) == true)
+  {
+    Serial.println("SX1509 Device found. I2C connections are good.");
+  }
+  else
+  {
+    Serial.println("SX1509 Device not found. Check wiring.");
+    while (1); // stall out forever
+  }
+
+  // Set pinMode of GPIO expander pins
+  gpio.pinMode(SX1509_LED_PIN, ANALOG_OUTPUT);
 
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
@@ -144,17 +170,19 @@ void setup() {
   Serial.print("Camera Ready! Use 'http://");
   Serial.print(WiFi.localIP());
   Serial.println("' to connect");
+
+  setup_timed_functions();
 }
 
 void loop() {
-  sensorValue = adcSensor.getSingleEnded(3);
-  Serial.print("A3:");
-  Serial.println(sensorValue);
+  // if(buttonValue != 0) {
+  //   Serial.println("Button Pressed");
+  //   buttonValue = 0;
+  // }
+  
+  sensorValue = sensorValArr[3];
 
-  if(buttonValue != 0) {
-    Serial.println("Button Pressed");
-    buttonValue = 0;
-  }
-
-  delay(100); // 100 msec delay
+  check_timed_functions();
 }
+
+
