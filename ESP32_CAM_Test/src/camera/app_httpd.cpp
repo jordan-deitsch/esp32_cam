@@ -709,7 +709,7 @@ static esp_err_t status_page_handler(httpd_req_t *req) {
         "    .then(response => response.text())"
         "    .then(data => {"
         "      console.log('Response:', data);"
-        "      alert('Command sent!');"
+        //"      alert('Command sent!');"
         "    })"
         "    .catch(error => {"
         "      console.error('Error:', error);"

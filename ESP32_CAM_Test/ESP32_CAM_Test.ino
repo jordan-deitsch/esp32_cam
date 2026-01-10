@@ -175,10 +175,10 @@ void setup() {
 }
 
 void loop() {
-  // if(buttonValue != 0) {
-  //   Serial.println("Button Pressed");
-  //   buttonValue = 0;
-  // }
+  if(buttonValue != 0) {
+    Serial.println("Button Pressed");
+    buttonValue = 0;
+  }
   
   sensorValue = sensorValArr[3];
 
