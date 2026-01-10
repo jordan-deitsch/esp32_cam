@@ -175,11 +175,14 @@ void setup() {
 }
 
 void loop() {
+  
+  // Check webserver for button updates
   if(buttonValue != 0) {
     Serial.println("Button Pressed");
     buttonValue = 0;
   }
 
+  // Update sensor values for webserver
   for(int i=0; i<NUM_ADC_CHANNELS; i++)
   {
     sensorValueArr[i] = adcValueArr[i];

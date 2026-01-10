@@ -3,12 +3,12 @@ import time
 import cv2
 
 ESP32_IP = "10.0.0.104"
-SENSOR_URL = f"http://{ESP32_IP}/sensor"
+SENSOR_URL = f"http://{ESP32_IP}/sensor_json"
 STREAM_URL = f"http://{ESP32_IP}:81/stream"
 
 THRESHOLD = 2000
 POLL_INTERVAL = 0.5
-CAPTURE_SECONDS = 5
+CAPTURE_SECONDS = 10
 CALIBRATION_SECONDS = 5
 ACTUAL_FPS = 50
 
@@ -68,10 +68,14 @@ def record_video(filename, duration):
 def poll_sensor():
     try:
         r = requests.get(SENSOR_URL, timeout=1)
-        value = r.json()["value"]
-        print("Sensor:", value)
+        val0 = r.json()["sensor_a0"]
+        val1 = r.json()["sensor_a1"]
+        val2 = r.json()["sensor_a2"]
+        val3 = r.json()["sensor_a3"]
 
-        if value >= THRESHOLD:
+        print(f"A0: {val0} A1: {val1} A2: {val2} A3: {val3}")
+
+        if val3 >= THRESHOLD:
             ts = int(time.time())
             record_video(f"capture_{ts}.avi", CAPTURE_SECONDS)
             time.sleep(2)  # debounce

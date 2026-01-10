@@ -671,7 +671,6 @@ extern volatile uint16_t sensorValueArr[4];
 
 static esp_err_t sensor_handler(httpd_req_t *req) {
   char json[128];
-
   snprintf(json, sizeof(json),
             "{"
             "\"sensor_a0\": %u,"
@@ -703,13 +702,22 @@ static esp_err_t status_page_handler(httpd_req_t *req) {
         "</head>"
         "<body>"
         "<h2>ESP32-CAM Status</h2>"
-        "<img src='/stream'>"
-        "<p>Sensor value: <span id='v'>---</span></p>"
-        
+        "<p>Sensor 1: <span id='val1'>---</span></p>"
+        "<p>Sensor 2: <span id='val2'>---</span></p>"
+        "<p>Sensor 3: <span id='val3'>---</span></p>"
+        "<p>Sensor 4: <span id='val4'>---</span></p>"
+
         "<script>"
-        "setInterval(()=>{"
-        "fetch('/sensor').then(r=>r.text()).then(t=>v.innerText=t);"
-        "},500);"
+        "setInterval(() => {"
+        "  fetch('/sensor_json')"
+        "    .then(r => r.json())"
+        "    .then(d => {"
+        "      document.getElementById('val1').innerText = d.sensor_a0;"
+        "      document.getElementById('val2').innerText = d.sensor_a1;"
+        "      document.getElementById('val3').innerText = d.sensor_a2;"
+        "      document.getElementById('val4').innerText = d.sensor_a3;"
+        "    });"
+        "}, 500);"
         "</script>"
 
         "<button onclick=\"sendCommand()\">Toggle Motor</button>"
@@ -719,7 +727,6 @@ static esp_err_t status_page_handler(httpd_req_t *req) {
         "    .then(response => response.text())"
         "    .then(data => {"
         "      console.log('Response:', data);"
-        //"      alert('Command sent!');"
         "    })"
         "    .catch(error => {"
         "      console.error('Error:', error);"
@@ -908,15 +915,17 @@ void startCameraServer() {
 #endif
   };
 
-  httpd_uri_t sensor_uri = {
-    .uri       = "/sensor",
+  // URI for JSON sensor data
+  httpd_uri_t sensor_json_uri = {
+    .uri       = "/sensor_json",
     .method    = HTTP_GET,
     .handler   = sensor_handler,
     .user_ctx  = NULL
   };
 
-  httpd_uri_t adc_value_uri = {
-    .uri       = "/adc_value",
+  // URI to display sensor data
+  httpd_uri_t sensor_data_uri = {
+    .uri       = "/sensor_data",
     .method    = HTTP_GET,
     .handler   = status_page_handler,
     .user_ctx  = NULL
@@ -945,8 +954,8 @@ void startCameraServer() {
     httpd_register_uri_handler(camera_httpd, &pll_uri);
     httpd_register_uri_handler(camera_httpd, &win_uri);
     
-    httpd_register_uri_handler(camera_httpd, &sensor_uri);
-    httpd_register_uri_handler(camera_httpd, &adc_value_uri);
+    httpd_register_uri_handler(camera_httpd, &sensor_json_uri);
+    httpd_register_uri_handler(camera_httpd, &sensor_data_uri);
     httpd_register_uri_handler(camera_httpd, &control_uri);
   }
 
