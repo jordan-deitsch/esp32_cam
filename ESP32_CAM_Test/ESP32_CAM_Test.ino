@@ -1,5 +1,13 @@
 #include "esp_camera.h"
+#include "src/TimedFunction.h"
+#include "src/SX1509/SX1509.h"
+#include "src/ADS1015/ADS1015.h"
+
+// SparkFun Libraries
+#include <SparkFun_ADS1015_Arduino_Library.h>
+#include <SparkFunSX1509.h>
 #include <WiFi.h>
+#include <Wire.h>
 
 // ===========================
 // Select camera model in board_config.h
@@ -9,8 +17,8 @@
 // ===========================
 // Enter your WiFi credentials
 // ===========================
-const char *ssid = "********";
-const char *password = "********";
+const char *ssid = "LogIntoMordor";
+const char *password = "1network2rule";
 
 // Define your custom I2C pins
 #define I2C_SDA_PIN 13
@@ -19,10 +27,46 @@ const char *password = "********";
 void startCameraServer();
 void setupLedFlash();
 
+// ADS1015 12-bit ADC Instance
+ADS1015 adcSensor;
+
+// SX1509 16-bit GPIO Expander Instance
+SX1509 gpio;                      // Create an SX1509 object to be used throughout
+
+// Webserver global variables
+volatile uint16_t sensorValueArr[4];
+volatile uint16_t buttonValue = 0;
+
 void setup() {
+  Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN, 200000); // 200kHz frequency
   Serial.begin(115200);
   Serial.setDebugOutput(true);
   Serial.println();
+
+  // Initialize ADC
+  if (adcSensor.begin() == true)
+  {
+    Serial.println("ADS1015 Device found. I2C connections are good.");
+  }
+  else
+  {
+    Serial.println("ADS1015 Device not found. Check wiring.");
+    while (1); // stall out forever
+  }
+
+  // Initialize GPIO expander
+  if (gpio.begin(SX1509_ADDRESS) == true)
+  {
+    Serial.println("SX1509 Device found. I2C connections are good.");
+  }
+  else
+  {
+    Serial.println("SX1509 Device not found. Check wiring.");
+    while (1); // stall out forever
+  }
+
+  // Set pinMode of GPIO expander pins
+  gpio.pinMode(SX1509_LED_PIN, ANALOG_OUTPUT);
 
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
@@ -126,8 +170,25 @@ void setup() {
   Serial.print("Camera Ready! Use 'http://");
   Serial.print(WiFi.localIP());
   Serial.println("' to connect");
+
+  setup_timed_functions();
 }
 
 void loop() {
-  delay(100); // 100 msec delay
+  
+  // Check webserver for button updates
+  if(buttonValue != 0) {
+    Serial.println("Button Pressed");
+    buttonValue = 0;
+  }
+
+  // Update sensor values for webserver
+  for(int i=0; i<NUM_ADC_CHANNELS; i++)
+  {
+    sensorValueArr[i] = adcValueArr[i];
+  }
+  
+  check_timed_functions();
 }
+
+

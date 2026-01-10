@@ -667,6 +667,107 @@ static esp_err_t index_handler(httpd_req_t *req) {
   }
 }
 
+extern volatile uint16_t sensorValueArr[4];
+
+static esp_err_t sensor_handler(httpd_req_t *req) {
+  char json[128];
+  snprintf(json, sizeof(json),
+            "{"
+            "\"sensor_a0\": %u,"
+            "\"sensor_a1\": %u,"
+            "\"sensor_a2\": %u,"
+            "\"sensor_a3\": %u"
+            "}",
+            sensorValueArr[0],
+            sensorValueArr[1],
+            sensorValueArr[2],
+            sensorValueArr[3]);
+
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, json, HTTPD_RESP_USE_STRLEN);
+    return ESP_OK;
+}
+
+static esp_err_t status_page_handler(httpd_req_t *req) {
+    const char html[] =
+        "<!DOCTYPE html>"
+        "<html>"
+        "<head>"
+        "<meta name='viewport' content='width=device-width, initial-scale=1'>"
+        "<title>ESP32-CAM Status</title>"
+        "<style>"
+        "body{font-family:Arial;text-align:center;background:#111;color:#eee;}"
+        "img{width:100%;max-width:480px;}"
+        "</style>"
+        "</head>"
+        "<body>"
+        "<h2>ESP32-CAM Status</h2>"
+        "<p>Sensor 1: <span id='val1'>---</span></p>"
+        "<p>Sensor 2: <span id='val2'>---</span></p>"
+        "<p>Sensor 3: <span id='val3'>---</span></p>"
+        "<p>Sensor 4: <span id='val4'>---</span></p>"
+
+        "<script>"
+        "setInterval(() => {"
+        "  fetch('/sensor_json')"
+        "    .then(r => r.json())"
+        "    .then(d => {"
+        "      document.getElementById('val1').innerText = d.sensor_a0;"
+        "      document.getElementById('val2').innerText = d.sensor_a1;"
+        "      document.getElementById('val3').innerText = d.sensor_a2;"
+        "      document.getElementById('val4').innerText = d.sensor_a3;"
+        "    });"
+        "}, 500);"
+        "</script>"
+
+        "<button onclick=\"sendCommand()\">Toggle Motor</button>"
+        "<script>"
+        "function sendCommand() {"
+        "  fetch('/button_control?cmd=toggle_motor')"
+        "    .then(response => response.text())"
+        "    .then(data => {"
+        "      console.log('Response:', data);"
+        "    })"
+        "    .catch(error => {"
+        "      console.error('Error:', error);"
+        "      alert('Failed to send command.');"
+        "    });"
+        "}"
+        "</script>"
+
+        "</body>"
+        "</html>";
+
+    httpd_resp_set_type(req, "text/html");
+    httpd_resp_send(req, html, HTTPD_RESP_USE_STRLEN);
+    return ESP_OK;
+}
+
+extern volatile uint16_t buttonValue;
+
+static esp_err_t control_handler(httpd_req_t *req) {
+  char buf[100];
+  size_t buf_len = httpd_req_get_url_query_len(req) + 1;
+
+  if (buf_len > sizeof(buf)) {
+    return ESP_FAIL;
+  }
+  if (httpd_req_get_url_query_str(req, buf, buf_len) == ESP_OK) {
+    char param[32];
+    if (httpd_query_key_value(buf, "cmd", param, sizeof(param)) == ESP_OK) {
+      if (strcmp(param, "toggle_motor") == 0) {
+        // Your motor toggle code here
+        buttonValue = 1;
+        // e.g., digitalWrite(motorPin, !digitalRead(motorPin));
+        httpd_resp_sendstr(req, "Motor toggled");
+        return ESP_OK;
+      }
+    }
+  }
+  httpd_resp_sendstr(req, "Invalid command");
+  return ESP_OK;
+}
+
 void startCameraServer() {
   httpd_config_t config = HTTPD_DEFAULT_CONFIG();
   config.max_uri_handlers = 16;
@@ -814,6 +915,29 @@ void startCameraServer() {
 #endif
   };
 
+  // URI for JSON sensor data
+  httpd_uri_t sensor_json_uri = {
+    .uri       = "/sensor_json",
+    .method    = HTTP_GET,
+    .handler   = sensor_handler,
+    .user_ctx  = NULL
+  };
+
+  // URI to display sensor data
+  httpd_uri_t sensor_data_uri = {
+    .uri       = "/sensor_data",
+    .method    = HTTP_GET,
+    .handler   = status_page_handler,
+    .user_ctx  = NULL
+  };
+
+  httpd_uri_t control_uri = {
+    .uri = "/button_control",
+    .method = HTTP_GET,
+    .handler = control_handler,
+    .user_ctx = NULL
+  };
+
   ra_filter_init(&ra_filter, 20);
 
   log_i("Starting web server on port: '%d'", config.server_port);
@@ -829,6 +953,10 @@ void startCameraServer() {
     httpd_register_uri_handler(camera_httpd, &greg_uri);
     httpd_register_uri_handler(camera_httpd, &pll_uri);
     httpd_register_uri_handler(camera_httpd, &win_uri);
+    
+    httpd_register_uri_handler(camera_httpd, &sensor_json_uri);
+    httpd_register_uri_handler(camera_httpd, &sensor_data_uri);
+    httpd_register_uri_handler(camera_httpd, &control_uri);
   }
 
   config.server_port += 1;
