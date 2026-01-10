@@ -38,7 +38,7 @@ volatile uint16_t sensorValue = 0;
 volatile uint16_t buttonValue = 0;
 
 void setup() {
-  Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN, 400000); // 400kHz frequency
+  Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN, 200000); // 200kHz frequency
   Serial.begin(115200);
   Serial.setDebugOutput(true);
   Serial.println();
@@ -179,9 +179,8 @@ void loop() {
     Serial.println("Button Pressed");
     buttonValue = 0;
   }
-  
-  sensorValue = sensorValArr[3];
 
+  sensorValue = sensorValArr[3];
   check_timed_functions();
 }
 

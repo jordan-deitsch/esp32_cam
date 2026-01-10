@@ -13,13 +13,17 @@ static const float VOLT_PER_LSB = ADC_VCC / (float)MAX_VALUE_SINGLE_END;
 
 void ADS1015_get_all_channels()
 {
+  uint16_t sensorRead;
+  
   for (int i=0; i<NUM_ADC_CHANNELS; i++)
   {
-    uint16_t sensorRead = adcSensor.getSingleEnded(i);
-    if (sensorRead <= MAX_VALUE_SINGLE_END)
+    adcSensor.getSingleEnded(i);  // Dummy read to confirm address register is set
+    sensorRead = adcSensor.getSingleEnded(i);
+    if (sensorRead > MAX_VALUE_SINGLE_END)
     {
-      sensorValArr[i] = sensorRead;
+      sensorRead = 0;
     }
+    sensorValArr[i] = sensorRead;
     sensorVoltageArr[i] = (float)sensorValArr[i] * VOLT_PER_LSB;
     Serial.printf("Value %d: %d  ", i, sensorValArr[i]);
   }
