@@ -6,8 +6,7 @@
 #define NUM_ADC_CHANNELS (4)
 
 extern ADS1015 adcSensor;
-extern volatile uint16_t sensorValArr[NUM_ADC_CHANNELS];
-extern volatile float sensorVoltageArr[NUM_ADC_CHANNELS];
+extern volatile uint16_t adcValueArr[NUM_ADC_CHANNELS];
 
 void ADS1015_get_all_channels();
 

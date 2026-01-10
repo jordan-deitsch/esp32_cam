@@ -667,12 +667,22 @@ static esp_err_t index_handler(httpd_req_t *req) {
   }
 }
 
-extern volatile uint16_t sensorValue;
+extern volatile uint16_t sensorValueArr[4];
 
 static esp_err_t sensor_handler(httpd_req_t *req) {
-    char json[64];
-    snprintf(json, sizeof(json),
-             "{\"value\": %u}", sensorValue);
+  char json[128];
+
+  snprintf(json, sizeof(json),
+            "{"
+            "\"sensor_a0\": %u,"
+            "\"sensor_a1\": %u,"
+            "\"sensor_a2\": %u,"
+            "\"sensor_a3\": %u"
+            "}",
+            sensorValueArr[0],
+            sensorValueArr[1],
+            sensorValueArr[2],
+            sensorValueArr[3]);
 
     httpd_resp_set_type(req, "application/json");
     httpd_resp_send(req, json, HTTPD_RESP_USE_STRLEN);

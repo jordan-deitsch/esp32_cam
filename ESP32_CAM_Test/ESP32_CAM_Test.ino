@@ -34,7 +34,7 @@ ADS1015 adcSensor;
 SX1509 gpio;                      // Create an SX1509 object to be used throughout
 
 // Webserver global variables
-volatile uint16_t sensorValue = 0;
+volatile uint16_t sensorValueArr[4];
 volatile uint16_t buttonValue = 0;
 
 void setup() {
@@ -180,7 +180,11 @@ void loop() {
     buttonValue = 0;
   }
 
-  sensorValue = sensorValArr[3];
+  for(int i=0; i<NUM_ADC_CHANNELS; i++)
+  {
+    sensorValueArr[i] = adcValueArr[i];
+  }
+  
   check_timed_functions();
 }
 
