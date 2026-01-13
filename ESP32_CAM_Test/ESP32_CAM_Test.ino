@@ -1,4 +1,5 @@
 // User defined sources
+#include "DeviceSetup.h"
 #include "src/TimedFunction.h"
 #include "src/SX1509/SX1509.h"
 #include "src/ADS1015/ADS1015.h"
@@ -11,20 +12,15 @@
 #include <Wire.h>
 
 // ===========================
-// Select camera model in board_config.h
-// ===========================
-#include "src/camera/board_config.h"
-
-// ===========================
 // Enter your WiFi credentials
 // ===========================
 const char *ssid = "LogIntoMordor";
 const char *password = "1network2rule";
 
-// Define your custom I2C pins
-#define I2C_SDA_PIN 13
-#define I2C_SCL_PIN 14
-const uint32_t iic_frequency = 200000;
+// ===========================
+// Select camera model in board_config.h
+// ===========================
+#include "src/camera/board_config.h"
 
 void startCameraServer();
 void setupLedFlash();

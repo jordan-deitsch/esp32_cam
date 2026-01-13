@@ -4,12 +4,12 @@
 ADS1015 adcSensor;
 volatile uint16_t adcValueArr[NUM_ADC_CHANNELS];
 
-// Constants
-static const uint16_t MAX_VALUE_SINGLE_END = 2047;
+// Static Constants
+static const uint32_t MAX_VALUE_SINGLE_END = 2047;
 static const float ADC_VCC = 3.3f;
 static const float VOLT_PER_LSB = ADC_VCC / (float)MAX_VALUE_SINGLE_END;
 
-// Variables
+// Static Variables
 static float adcVoltageArr[NUM_ADC_CHANNELS];
 
 
