@@ -1,6 +1,7 @@
 #include "ADS1015.h"
 
 // Externs
+ADS1015 adcSensor;
 volatile uint16_t adcValueArr[NUM_ADC_CHANNELS];
 
 // Constants
