@@ -5,6 +5,7 @@
 #include "src/ADS1015/ADS1015.h"
 
 // SparkFun Libraries
+#include <Arduino.h>
 #include <esp_camera.h>
 #include <SparkFun_ADS1015_Arduino_Library.h>
 #include <SparkFunSX1509.h>

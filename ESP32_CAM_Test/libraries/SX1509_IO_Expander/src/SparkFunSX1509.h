@@ -22,8 +22,8 @@ local, and you've found our code helpful, please buy us a round!
 Distributed as-is; no warranty is given.
 ******************************************************************************/
 
-#include <Wire.h>
 #include "Arduino.h"
+#include "Wire.h"
 
 #ifndef SparkFunSX1509_H
 #define SparkFunSX1509_H
