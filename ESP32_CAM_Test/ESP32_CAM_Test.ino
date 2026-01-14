@@ -15,8 +15,8 @@
 // ===========================
 // Enter your WiFi credentials
 // ===========================
-const char *ssid = "LogIntoMordor";
-const char *password = "1network2rule";
+const char *ssid = "Jordan's iPhone";
+const char *password = "ujVL-uwM5-m3YR-xorx";
 
 // ===========================
 // Select camera model in board_config.h
@@ -36,6 +36,8 @@ void setup() {
   Serial.setDebugOutput(true);
   Serial.println();
 
+  Serial.println("Starting setup...");
+
   // Initialize ADC
   if (adcSensor.begin() == true)
   {
@@ -51,15 +53,13 @@ void setup() {
   if (gpio.begin(SX1509_ADDRESS) == true)
   {
     Serial.println("SX1509 Device found. I2C connections are good.");
+    SX1509_Setup();
   }
   else
   {
     Serial.println("SX1509 Device not found. Check wiring.");
     while (1); // stall out forever
   }
-
-  // Set pinMode of GPIO expander pins
-  gpio.pinMode(SX1509_LED_PIN, ANALOG_OUTPUT);
 
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
@@ -147,6 +147,7 @@ void setup() {
   setupLedFlash();
 #endif
 
+  Serial.print("Attempting to connect to WiFi");
   WiFi.begin(ssid, password);
   WiFi.setSleep(false);
 
