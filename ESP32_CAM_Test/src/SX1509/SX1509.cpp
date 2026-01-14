@@ -2,6 +2,7 @@
 
 // Externs
 SX1509 gpio;
+Motor motorA = Motor(SX1509_AI1_PIN, SX1509_AI2_PIN, SX1509_PWMA_PIN, offsetA, SX1509_STBY_PIN);
 
 // Static Constants
 static const int MAX_BRIGHTNESS = 255;
