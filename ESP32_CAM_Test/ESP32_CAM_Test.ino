@@ -1,18 +1,15 @@
-#include "esp_camera.h"
+// User defined sources
+#include "DeviceSetup.h"
 #include "src/TimedFunction.h"
 #include "src/SX1509/SX1509.h"
 #include "src/ADS1015/ADS1015.h"
 
 // SparkFun Libraries
+#include <esp_camera.h>
 #include <SparkFun_ADS1015_Arduino_Library.h>
 #include <SparkFunSX1509.h>
 #include <WiFi.h>
 #include <Wire.h>
-
-// ===========================
-// Select camera model in board_config.h
-// ===========================
-#include "src/camera/board_config.h"
 
 // ===========================
 // Enter your WiFi credentials
@@ -20,25 +17,20 @@
 const char *ssid = "LogIntoMordor";
 const char *password = "1network2rule";
 
-// Define your custom I2C pins
-#define I2C_SDA_PIN 13
-#define I2C_SCL_PIN 14
+// ===========================
+// Select camera model in board_config.h
+// ===========================
+#include "src/camera/board_config.h"
 
 void startCameraServer();
 void setupLedFlash();
-
-// ADS1015 12-bit ADC Instance
-ADS1015 adcSensor;
-
-// SX1509 16-bit GPIO Expander Instance
-SX1509 gpio;                      // Create an SX1509 object to be used throughout
 
 // Webserver global variables
 volatile uint16_t sensorValueArr[4];
 volatile uint16_t buttonValue = 0;
 
 void setup() {
-  Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN, 200000); // 200kHz frequency
+  Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN, iic_frequency);
   Serial.begin(115200);
   Serial.setDebugOutput(true);
   Serial.println();
