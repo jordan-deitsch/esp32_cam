@@ -5,6 +5,7 @@
 #include "src/ADS1015/ADS1015.h"
 
 // SparkFun Libraries
+#include <Arduino.h>
 #include <esp_camera.h>
 #include <SparkFun_ADS1015_Arduino_Library.h>
 #include <SparkFunSX1509.h>
@@ -14,8 +15,8 @@
 // ===========================
 // Enter your WiFi credentials
 // ===========================
-const char *ssid = "LogIntoMordor";
-const char *password = "1network2rule";
+const char *ssid = "*********";
+const char *password = "********";
 
 // ===========================
 // Select camera model in board_config.h
@@ -35,6 +36,8 @@ void setup() {
   Serial.setDebugOutput(true);
   Serial.println();
 
+  Serial.println("Starting setup...");
+
   // Initialize ADC
   if (adcSensor.begin() == true)
   {
@@ -50,6 +53,7 @@ void setup() {
   if (gpio.begin(SX1509_ADDRESS) == true)
   {
     Serial.println("SX1509 Device found. I2C connections are good.");
+    SX1509_Setup();
   }
   else
   {
@@ -57,8 +61,9 @@ void setup() {
     while (1); // stall out forever
   }
 
-  // Set pinMode of GPIO expander pins
-  gpio.pinMode(SX1509_LED_PIN, ANALOG_OUTPUT);
+  // Setup the timed functions
+  setup_timed_functions();
+
 
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
@@ -146,6 +151,7 @@ void setup() {
   setupLedFlash();
 #endif
 
+  Serial.print("Attempting to connect to WiFi");
   WiFi.begin(ssid, password);
   WiFi.setSleep(false);
 
@@ -162,8 +168,6 @@ void setup() {
   Serial.print("Camera Ready! Use 'http://");
   Serial.print(WiFi.localIP());
   Serial.println("' to connect");
-
-  setup_timed_functions();
 }
 
 void loop() {
