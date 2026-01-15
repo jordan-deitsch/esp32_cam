@@ -2,8 +2,7 @@
 
 // Externs
 SX1509 gpio;
-int motorSpeedA = 255;
-Motor motorA = Motor(SX1509_AI1_PIN, SX1509_AI2_PIN, SX1509_PWMA_PIN, offsetA, SX1509_STBY_PIN);
+int motorSpeedA = 0;
 
 // Static Constants
 static const int MAX_BRIGHTNESS = 255;
@@ -24,7 +23,7 @@ void SX1509_Setup()
   gpio.pinMode(SX1509_STBY_PIN, OUTPUT);
   
   // Initialize LED pin
-  gpio.analogWrite(SX1509_LED_PIN, 0);
+  gpio.analogWrite(SX1509_LED_PIN, LOW);
 
   // Initialize motor driver to be enabled but in brake state
   gpio.digitalWrite(SX1509_STBY_PIN, HIGH);
@@ -70,23 +69,31 @@ void SX1509_motor_stop()
 {
   gpio.digitalWrite(SX1509_AI1_PIN, HIGH);
   gpio.digitalWrite(SX1509_AI2_PIN, HIGH);
-  gpio.analogWrite(SX1509_PWMA_PIN, 0);
+  gpio.analogWrite(SX1509_PWMA_PIN, LOW);
 }
+
 
 void SX1509_set_motor_speed()
 {
-  gpio.analogWrite(SX1509_PWMA_PIN, motorSpeedA);
+  // PWM output is reversed: 0 = 100%, 255 = 0% duty cycle
+  int adjustedPWM = MAX_MOTOR_SPEED - motorSpeedA;
+  if (adjustedPWM < 0)
+  {
+    adjustedPWM = 0;
+  }
+  gpio.analogWrite(SX1509_PWMA_PIN, adjustedPWM);
 }
+
 
 void SX1509_set_motor_standby(uint8_t stby)
 {
   gpio.digitalWrite(SX1509_STBY_PIN, stby);
 }
 
+
 void SX1509_reverse_motor()
 {
   motor_fwd = !motor_fwd;
-  
   if (motor_fwd)
   {
     SX1509_motor_CW();

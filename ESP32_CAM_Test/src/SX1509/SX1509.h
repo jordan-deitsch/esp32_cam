@@ -2,12 +2,10 @@
 #define SX1509_H
 
 #include "DeviceSetup.h"
-#include "src/TB6612FNG/SparkFun_TB6612.h"
 #include <SparkFunSX1509.h>
 
 // External Variables
 extern SX1509 gpio;
-extern Motor motorA;
 extern int motorSpeedA;
 extern const byte SX1509_ADDRESS;
 extern const byte SX1509_LED_PIN;

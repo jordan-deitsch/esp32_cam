@@ -13,7 +13,8 @@ static const unsigned long CHECK_LED_TIME = 10UL; // Update LED every 10 msec
 static const unsigned long CHECK_SENSORS_TIME = 200UL; // Check sensors every 100 msec
 static const unsigned long REVERSE_MOTOR_TIME = 1000UL; // Reverse motor direction every 1 sec
 
-TimedFunction* timed_function_arr[NUM_TIMED_FUNCTIONS];
+static const int NUM_TIMED_FUNCTIONS = 3;
+static TimedFunction* timed_function_arr[NUM_TIMED_FUNCTIONS];
 
 void setup_timed_functions()
 {

@@ -61,6 +61,10 @@ void setup() {
     while (1); // stall out forever
   }
 
+  // Setup the timed functions
+  setup_timed_functions();
+
+
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
   config.ledc_timer = LEDC_TIMER_0;
@@ -164,8 +168,6 @@ void setup() {
   Serial.print("Camera Ready! Use 'http://");
   Serial.print(WiFi.localIP());
   Serial.println("' to connect");
-
-  setup_timed_functions();
 }
 
 void loop() {
