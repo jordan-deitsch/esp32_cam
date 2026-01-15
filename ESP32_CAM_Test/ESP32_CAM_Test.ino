@@ -15,8 +15,8 @@
 // ===========================
 // Enter your WiFi credentials
 // ===========================
-const char *ssid = "Jordan's iPhone";
-const char *password = "ujVL-uwM5-m3YR-xorx";
+const char *ssid = "LogIntoMordor";
+const char *password = "1network2rule";
 
 // ===========================
 // Select camera model in board_config.h
