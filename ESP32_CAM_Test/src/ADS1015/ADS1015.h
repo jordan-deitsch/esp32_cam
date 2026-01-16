@@ -9,6 +9,7 @@
 // External Variables
 extern ADS1015 adcSensor;
 extern volatile uint16_t adcValueArr[NUM_ADC_CHANNELS];
+extern volatile float adcScaledArr[NUM_ADC_CHANNELS];
 
 // Functions
 void ADS1015_get_all_channels();

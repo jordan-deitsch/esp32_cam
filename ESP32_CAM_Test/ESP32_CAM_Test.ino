@@ -15,8 +15,8 @@
 // ===========================
 // Enter your WiFi credentials
 // ===========================
-const char *ssid = "*********";
-const char *password = "********";
+const char *ssid = "LogIntoMordor";
+const char *password = "1network2rule";
 
 // ===========================
 // Select camera model in board_config.h
@@ -27,7 +27,7 @@ void startCameraServer();
 void setupLedFlash();
 
 // Webserver global variables
-volatile uint16_t sensorValueArr[4];
+volatile float sensorValueArr[4];
 volatile uint16_t buttonValue = 0;
 
 void setup() {
@@ -151,7 +151,6 @@ void setup() {
   setupLedFlash();
 #endif
 
-  Serial.print("Attempting to connect to WiFi");
   WiFi.begin(ssid, password);
   WiFi.setSleep(false);
 
