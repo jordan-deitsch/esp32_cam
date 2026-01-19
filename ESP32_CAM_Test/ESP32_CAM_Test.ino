@@ -15,8 +15,8 @@
 // ===========================
 // Enter your WiFi credentials
 // ===========================
-const char *ssid = "*********";
-const char *password = "********";
+const char *ssid = "LogIntoMordor";
+const char *password = "1network2rule";
 
 // ===========================
 // Select camera model in board_config.h
@@ -31,7 +31,7 @@ volatile uint16_t sensorValueArr[4];
 volatile uint16_t buttonValue = 0;
 
 void setup() {
-  Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN, iic_frequency);
+  Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN, I2C_FREQUENCY);
   Serial.begin(115200);
   Serial.setDebugOutput(true);
   Serial.println();
@@ -172,6 +172,10 @@ void setup() {
 
 void loop() {
   
+  /*
+   * ADD CODE HERE
+  */
+
   // Check webserver for button updates
   if(buttonValue != 0) {
     Serial.println("Button Pressed");

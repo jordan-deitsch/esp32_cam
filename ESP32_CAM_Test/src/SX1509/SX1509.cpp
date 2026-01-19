@@ -16,14 +16,18 @@ static bool motor_fwd = true;
 void SX1509_Setup()
 {
   // Set pinMode of GPIO expander pins
-  gpio.pinMode(SX1509_LED_PIN, ANALOG_OUTPUT);
+  gpio.pinMode(SX1509_LED_RED_PIN, ANALOG_OUTPUT);
+  gpio.pinMode(SX1509_LED_GREEN_PIN, ANALOG_OUTPUT);
+  gpio.pinMode(SX1509_LED_BLUE_PIN, ANALOG_OUTPUT);
   gpio.pinMode(SX1509_AI1_PIN, OUTPUT);
   gpio.pinMode(SX1509_AI2_PIN, OUTPUT);
   gpio.pinMode(SX1509_PWMA_PIN, ANALOG_OUTPUT);
   gpio.pinMode(SX1509_STBY_PIN, OUTPUT);
   
   // Initialize LED pin
-  gpio.analogWrite(SX1509_LED_PIN, LOW);
+  gpio.analogWrite(SX1509_LED_RED_PIN, LOW);
+  gpio.analogWrite(SX1509_LED_GREEN_PIN, LOW);
+  gpio.analogWrite(SX1509_LED_BLUE_PIN, LOW);
 
   // Initialize motor driver to be enabled but in brake state
   gpio.digitalWrite(SX1509_STBY_PIN, HIGH);
@@ -46,7 +50,7 @@ void SX1509_fade_led()
     led_brightness--;
   }
 
-  gpio.analogWrite(SX1509_LED_PIN, led_brightness);
+  gpio.analogWrite(SX1509_LED_RED_PIN, led_brightness);
 }
 
 void SX1509_motor_CW()

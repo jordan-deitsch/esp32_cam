@@ -6,8 +6,6 @@
 
 // External Variables
 extern SX1509 gpio;
-extern const byte SX1509_ADDRESS;
-extern const byte SX1509_LED_PIN;
 
 // Functions
 void SX1509_Setup();
