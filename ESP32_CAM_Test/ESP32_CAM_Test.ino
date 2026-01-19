@@ -180,7 +180,7 @@ void loop() {
   // Update sensor values for webserver
   for(int i=0; i<NUM_ADC_CHANNELS; i++)
   {
-    sensorValueArr[i] = adcValueArr[i];
+    sensorValueArr[i] = adcScaledArr[i];
   }
   
   check_timed_functions();
