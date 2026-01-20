@@ -31,7 +31,7 @@ volatile float sensorValueArr[4];
 volatile uint16_t buttonValue = 0;
 
 void setup() {
-  Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN, iic_frequency);
+  Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN, I2C_FREQUENCY);
   Serial.begin(115200);
   Serial.setDebugOutput(true);
   Serial.println();
@@ -53,7 +53,7 @@ void setup() {
   if (gpio.begin(SX1509_ADDRESS) == true)
   {
     Serial.println("SX1509 Device found. I2C connections are good.");
-    SX1509_Setup();
+    SX1509_setup();
   }
   else
   {
@@ -171,6 +171,10 @@ void setup() {
 
 void loop() {
   
+  /*
+   * ADD CODE HERE
+  */
+
   // Check webserver for button updates
   if(buttonValue != 0) {
     Serial.println("Button Pressed");

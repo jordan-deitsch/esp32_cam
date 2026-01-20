@@ -1,7 +1,6 @@
 #ifndef TIMED_FUNCTION_H
 #define TIMED_FUNCTION_H
 
-
 typedef void (*TimedFuctionPtr)();
 
 struct TimedFunction
