@@ -667,16 +667,16 @@ static esp_err_t index_handler(httpd_req_t *req) {
   }
 }
 
-extern volatile uint16_t sensorValueArr[4];
+extern volatile float sensorValueArr[4];
 
 static esp_err_t sensor_handler(httpd_req_t *req) {
   char json[128];
   snprintf(json, sizeof(json),
             "{"
-            "\"sensor_a0\": %u,"
-            "\"sensor_a1\": %u,"
-            "\"sensor_a2\": %u,"
-            "\"sensor_a3\": %u"
+            "\"sensor_a0\": %f,"
+            "\"sensor_a1\": %f,"
+            "\"sensor_a2\": %f,"
+            "\"sensor_a3\": %f"
             "}",
             sensorValueArr[0],
             sensorValueArr[1],
@@ -712,18 +712,18 @@ static esp_err_t status_page_handler(httpd_req_t *req) {
         "  fetch('/sensor_json')"
         "    .then(r => r.json())"
         "    .then(d => {"
-        "      document.getElementById('val1').innerText = d.sensor_a0;"
-        "      document.getElementById('val2').innerText = d.sensor_a1;"
-        "      document.getElementById('val3').innerText = d.sensor_a2;"
-        "      document.getElementById('val4').innerText = d.sensor_a3;"
+        "      document.getElementById('val1').innerText = d.sensor_a0.toFixed(3);"
+        "      document.getElementById('val2').innerText = d.sensor_a1.toFixed(3);"
+        "      document.getElementById('val3').innerText = d.sensor_a2.toFixed(3);"
+        "      document.getElementById('val4').innerText = d.sensor_a3.toFixed(3);"
         "    });"
         "}, 500);"
         "</script>"
 
-        "<button onclick=\"sendCommand()\">Toggle Motor</button>"
+        "<button onclick=\"sendCommand()\">Toggle Button</button>"
         "<script>"
         "function sendCommand() {"
-        "  fetch('/button_control?cmd=toggle_motor')"
+        "  fetch('/button_control?cmd=toggle_button')"
         "    .then(response => response.text())"
         "    .then(data => {"
         "      console.log('Response:', data);"
@@ -755,11 +755,10 @@ static esp_err_t control_handler(httpd_req_t *req) {
   if (httpd_req_get_url_query_str(req, buf, buf_len) == ESP_OK) {
     char param[32];
     if (httpd_query_key_value(buf, "cmd", param, sizeof(param)) == ESP_OK) {
-      if (strcmp(param, "toggle_motor") == 0) {
-        // Your motor toggle code here
+      if (strcmp(param, "toggle_button") == 0) {
+        // Set buttonValue variable that is polled by main loop
         buttonValue = 1;
-        // e.g., digitalWrite(motorPin, !digitalRead(motorPin));
-        httpd_resp_sendstr(req, "Motor toggled");
+        httpd_resp_sendstr(req, "Button toggled");
         return ESP_OK;
       }
     }

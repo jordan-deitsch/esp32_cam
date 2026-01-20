@@ -13,12 +13,6 @@
 #include <Wire.h>
 
 // ===========================
-// Enter your WiFi credentials
-// ===========================
-const char *ssid = "LogIntoMordor";
-const char *password = "1network2rule";
-
-// ===========================
 // Select camera model in board_config.h
 // ===========================
 #include "src/camera/board_config.h"
@@ -27,7 +21,7 @@ void startCameraServer();
 void setupLedFlash();
 
 // Webserver global variables
-volatile uint16_t sensorValueArr[4];
+volatile float sensorValueArr[4];
 volatile uint16_t buttonValue = 0;
 
 void setup() {
@@ -39,7 +33,7 @@ void setup() {
   Serial.println("Starting setup...");
 
   // Initialize ADC
-  if (adcSensor.begin() == true)
+  if (adcSensor.begin(ADS1015_ADDRESS) == true)
   {
     Serial.println("ADS1015 Device found. I2C connections are good.");
   }
@@ -63,7 +57,6 @@ void setup() {
 
   // Setup the timed functions
   setup_timed_functions();
-
 
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
@@ -151,7 +144,6 @@ void setup() {
   setupLedFlash();
 #endif
 
-  Serial.print("Attempting to connect to WiFi");
   WiFi.begin(ssid, password);
   WiFi.setSleep(false);
 
@@ -172,22 +164,23 @@ void setup() {
 
 void loop() {
   
-  /*
-   * ADD CODE HERE
-  */
+  //
+  // ADD MAIN LOOP CODE HERE
+  //
 
-  // Check webserver for button updates
+  // Check webserver for button updates and perform and desired actions
   if(buttonValue != 0) {
     Serial.println("Button Pressed");
     buttonValue = 0;
   }
 
-  // Update sensor values for webserver
+  // Update sensor values for webserver with the ADC read values scaled to [0, 1]
   for(int i=0; i<NUM_ADC_CHANNELS; i++)
   {
-    sensorValueArr[i] = adcValueArr[i];
+    sensorValueArr[i] = adcScaledArr[i];
   }
   
+  // Call specific functions at desired time intervals without blocking the main loop()
   check_timed_functions();
 }
 
