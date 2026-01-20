@@ -1,39 +1,48 @@
 import requests
 import time
+from datetime import datetime
 import cv2
 
-ESP32_IP = "10.0.0.104"
+# Define web server URL (may change with build machines, WiFi network, or ESP32)
+ESP32_IP = "10.0.0.77"
 SENSOR_URL = f"http://{ESP32_IP}/sensor_json"
 STREAM_URL = f"http://{ESP32_IP}:81/stream"
 
-THRESHOLD = 2000
-POLL_INTERVAL = 0.5
-CAPTURE_SECONDS = 10
-CALIBRATION_SECONDS = 5
-ACTUAL_FPS = 50
+THRESHOLD = 0.8             # Sensor threshold to initiate video capture
+POLL_INTERVAL = 0.5         # Interval between polling times for JSON sensor data
+CAPTURE_SECONDS = 10        # Duration of video capture after threshold trigger
+CALIBRATION_SECONDS = 5     # Duration of frame rate calibration
+ACTUAL_FPS = 50             # Set initial value before calculating
 
-def calibrate_fps():
+
+# Capture frames for defined calibration period and calculate FPS
+def calibrate_fps(calibration_time):
     cap = cv2.VideoCapture(STREAM_URL)
     if not cap.isOpened():
         raise RuntimeError(f"Failed to open MJPEG stream at {STREAM_URL}")
         return
 
+    # Initialize number of frames and starting time
     frame_count = 0
     start_time = time.time()
 
     print("Calibrating camera FPS...")
 
-    while time.time() - start_time < CALIBRATION_SECONDS:
+    # Count frames during calibration time
+    while time.time() - start_time < calibration_time:
         ret, frame = cap.read()
         if not ret:
             break
         frame_count += 1
 
-    elapsed = time.time() - start_time
+    # Calculate FPS from number of frames and elapsed time
+    actual_elapsed = time.time() - start_time
     global ACTUAL_FPS
-    ACTUAL_FPS = frame_count / elapsed
-    print(f"Calibrated {frame_count} frames in {elapsed:.2f} seconds ({ACTUAL_FPS:.2f} FPS)")
+    ACTUAL_FPS = frame_count / actual_elapsed
+    print(f"Calibrated {frame_count} frames in {actual_elapsed:.2f} seconds ({ACTUAL_FPS:.2f} FPS)")
 
+
+# Record video for requested duration and save to file (.avi)
 def record_video(filename, duration):
     cap = cv2.VideoCapture(STREAM_URL)
     if not cap.isOpened():
@@ -65,6 +74,8 @@ def record_video(filename, duration):
     out.release()
     print(f"Saved {filename}")
 
+
+# Poll JSON sensor data and compare to threshold for video capture
 def poll_sensor():
     try:
         r = requests.get(SENSOR_URL, timeout=1)
@@ -73,19 +84,21 @@ def poll_sensor():
         val2 = r.json()["sensor_a2"]
         val3 = r.json()["sensor_a3"]
 
-        print(f"A0: {val0} A1: {val1} A2: {val2} A3: {val3}")
+        print(f"A0: {val0:.3f} A1: {val1:.3f} A2: {val2:.3f} A3: {val3:.3f}")
 
-        if val3 >= THRESHOLD:
+        # Use val0 for threshold comparison
+        if val0 >= THRESHOLD:
             ts = int(time.time())
-            record_video(f"capture_{ts}.avi", CAPTURE_SECONDS)
-            time.sleep(2)  # debounce
+            timestamp_str = datetime.fromtimestamp(ts).strftime("%Y_%b_%d_%H_%M_%S")
+            record_video(f"capture_{timestamp_str}.avi", CAPTURE_SECONDS)
+            time.sleep(2)  # Allow time for sensor to recover after video capture complete
 
     except Exception as e:
         print("Error:", e)
 
 
 # Perform setup and calibration of camera
-calibrate_fps()
+calibrate_fps(CALIBRATION_SECONDS)
 
 # Poll sensor data and wait for capture trigger
 while True:

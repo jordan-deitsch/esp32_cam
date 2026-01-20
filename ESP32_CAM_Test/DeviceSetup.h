@@ -4,16 +4,27 @@
 #include <cstdint>
 
 // ===========================
-// Define I2C pins and frequency
+// Define ESP32 I2C pins and frequency
 // ===========================
 inline constexpr uint32_t I2C_SDA_PIN = 13;
 inline constexpr uint32_t I2C_SCL_PIN = 14;
 inline constexpr uint32_t I2C_FREQUENCY = 200000;
 
 // ===========================
+// Enter your WiFi credentials
+// ===========================
+inline constexpr char *ssid = "********";
+inline constexpr char *password = "********";
+
+// ===========================
+// Define ADS1015 I2C address and pin usage
+// ===========================
+inline constexpr uint8_t ADS1015_ADDRESS = 0x48; // ADS1015 I2C address: set by ADDR pin
+
+// ===========================
 // Define SX1509 I2C address and pin usage
 // ===========================
-inline constexpr uint8_t SX1509_ADDRESS = 0x3E; // SX1509 I2C address: set by ADDR1 and ADDR0 (00 by default)
+inline constexpr uint8_t SX1509_ADDRESS = 0x3E; // SX1509 I2C address: set by ADDR1 and ADDR0 pins
 inline constexpr uint8_t SX1509_LED_RED_PIN = 0;
 inline constexpr uint8_t SX1509_LED_GREEN_PIN = 1;
 inline constexpr uint8_t SX1509_LED_BLUE_PIN = 2;

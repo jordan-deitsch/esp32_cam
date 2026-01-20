@@ -720,10 +720,10 @@ static esp_err_t status_page_handler(httpd_req_t *req) {
         "}, 500);"
         "</script>"
 
-        "<button onclick=\"sendCommand()\">Toggle Motor</button>"
+        "<button onclick=\"sendCommand()\">Toggle Button</button>"
         "<script>"
         "function sendCommand() {"
-        "  fetch('/button_control?cmd=toggle_motor')"
+        "  fetch('/button_control?cmd=toggle_button')"
         "    .then(response => response.text())"
         "    .then(data => {"
         "      console.log('Response:', data);"
@@ -755,11 +755,10 @@ static esp_err_t control_handler(httpd_req_t *req) {
   if (httpd_req_get_url_query_str(req, buf, buf_len) == ESP_OK) {
     char param[32];
     if (httpd_query_key_value(buf, "cmd", param, sizeof(param)) == ESP_OK) {
-      if (strcmp(param, "toggle_motor") == 0) {
-        // Your motor toggle code here
+      if (strcmp(param, "toggle_button") == 0) {
+        // Set buttonValue variable that is polled by main loop
         buttonValue = 1;
-        // e.g., digitalWrite(motorPin, !digitalRead(motorPin));
-        httpd_resp_sendstr(req, "Motor toggled");
+        httpd_resp_sendstr(req, "Button toggled");
         return ESP_OK;
       }
     }
