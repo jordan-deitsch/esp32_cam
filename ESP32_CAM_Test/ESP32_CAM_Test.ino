@@ -53,7 +53,7 @@ void setup() {
   if (gpio.begin(SX1509_ADDRESS) == true)
   {
     Serial.println("SX1509 Device found. I2C connections are good.");
-    SX1509_Setup();
+    SX1509_setup();
   }
   else
   {

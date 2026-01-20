@@ -32,3 +32,5 @@ void ADS1015_get_all_channels()
   
   Serial.println();
 }
+
+void ADS1015_print_all_channels()
