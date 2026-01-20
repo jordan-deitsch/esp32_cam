@@ -27,10 +27,14 @@ void ADS1015_get_all_channels()
     }
     adcValueArr[i] = sensorRead;
     adcScaledArr[i] = (float)adcValueArr[i] / (float)MAX_VALUE_SINGLE_END;
-    Serial.printf("Value %d: %d  ", i, adcValueArr[i]);
   }
-  
-  Serial.println();
 }
 
 void ADS1015_print_all_channels()
+{
+  for (int i=0; i<NUM_ADC_CHANNELS; i++)
+  {
+    Serial.printf("Value %d: %d  ", i, adcValueArr[i]);
+  }
+  Serial.println();
+}
