@@ -4,17 +4,17 @@
 #include <cstdint>
 
 // ===========================
+// Enter your WiFi credentials
+// ===========================
+inline constexpr char *ssid = "********";
+inline constexpr char *password = "********";
+
+// ===========================
 // Define ESP32 I2C pins and frequency
 // ===========================
 inline constexpr uint32_t I2C_SDA_PIN = 13;
 inline constexpr uint32_t I2C_SCL_PIN = 14;
 inline constexpr uint32_t I2C_FREQUENCY = 200000;
-
-// ===========================
-// Enter your WiFi credentials
-// ===========================
-inline constexpr char *ssid = "********";
-inline constexpr char *password = "********";
 
 // ===========================
 // Define ADS1015 I2C address and pin usage
