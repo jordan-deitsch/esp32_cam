@@ -1,9 +1,9 @@
 // User defined sources
 #include "DeviceSetup.h"
 #include "src/TimedFunction.h"
-#include "src/SX1509/SX1509.h"
 #include "src/ADS1015/ADS1015.h"
 #include "src/BMA400/BMA400.h"
+#include "src/SX1509/SX1509.h"
 
 // SparkFun Libraries
 #include <Arduino.h>
@@ -200,5 +200,3 @@ void loop() {
   // Call specific functions at desired time intervals without blocking the main loop()
   check_timed_functions();
 }
-
-

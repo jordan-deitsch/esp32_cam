@@ -1,9 +1,9 @@
 #include <sys/_types.h>
 #include "TimedFunction.h"
 
-#include "src/SX1509/SX1509.h"
 #include "src/ADS1015/ADS1015.h"
 #include "src/BMA400/BMA400.h"
+#include "src/SX1509/SX1509.h"
 
 // Available timed functions
 static TimedFunction tf_fade_led;
