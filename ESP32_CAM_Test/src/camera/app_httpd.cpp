@@ -20,6 +20,7 @@
 #include "sdkconfig.h"
 #include "camera_index.h"
 #include "board_config.h"
+#include "DeviceSetup.h"
 
 #if defined(ARDUINO_ARCH_ESP32) && defined(CONFIG_ARDUHAL_ESP_LOG)
 #include "esp32-hal-log.h"
@@ -667,21 +668,27 @@ static esp_err_t index_handler(httpd_req_t *req) {
   }
 }
 
-extern volatile float sensorValueArr[4];
+extern volatile float sensorValueArr[NUM_SENSORS];
 
 static esp_err_t sensor_handler(httpd_req_t *req) {
-  char json[128];
+  char json[256];
   snprintf(json, sizeof(json),
             "{"
             "\"sensor_a0\": %f,"
             "\"sensor_a1\": %f,"
             "\"sensor_a2\": %f,"
-            "\"sensor_a3\": %f"
+            "\"sensor_a3\": %f,"
+            "\"accel_x\": %f,"
+            "\"accel_y\": %f,"
+            "\"accel_z\": %f"
             "}",
             sensorValueArr[0],
             sensorValueArr[1],
             sensorValueArr[2],
-            sensorValueArr[3]);
+            sensorValueArr[3],
+            sensorValueArr[4],
+            sensorValueArr[5],
+            sensorValueArr[6]);
 
     httpd_resp_set_type(req, "application/json");
     httpd_resp_send(req, json, HTTPD_RESP_USE_STRLEN);
@@ -706,6 +713,9 @@ static esp_err_t status_page_handler(httpd_req_t *req) {
         "<p>Sensor 2: <span id='val2'>---</span></p>"
         "<p>Sensor 3: <span id='val3'>---</span></p>"
         "<p>Sensor 4: <span id='val4'>---</span></p>"
+        "<p>Accel X: <span id='val5'>---</span></p>"
+        "<p>Accel Y: <span id='val6'>---</span></p>"
+        "<p>Eccel Z: <span id='val7'>---</span></p>"
 
         "<script>"
         "setInterval(() => {"
@@ -716,6 +726,9 @@ static esp_err_t status_page_handler(httpd_req_t *req) {
         "      document.getElementById('val2').innerText = d.sensor_a1.toFixed(3);"
         "      document.getElementById('val3').innerText = d.sensor_a2.toFixed(3);"
         "      document.getElementById('val4').innerText = d.sensor_a3.toFixed(3);"
+        "      document.getElementById('val5').innerText = d.accel_x.toFixed(3);"
+        "      document.getElementById('val6').innerText = d.accel_y.toFixed(3);"
+        "      document.getElementById('val7').innerText = d.accel_z.toFixed(3);"
         "    });"
         "}, 500);"
         "</script>"

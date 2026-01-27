@@ -3,10 +3,12 @@
 
 #include "src/SX1509/SX1509.h"
 #include "src/ADS1015/ADS1015.h"
+#include "src/BMA400/BMA400.h"
 
 // Available timed functions
 static TimedFunction tf_fade_led;
-static TimedFunction tf_get_sensors;
+static TimedFunction tf_get_adc_sensors;
+static TimedFunction tf_get_accel_data;
 static TimedFunction tf_reverse_motor;
 
 // Time delays for each timed function
@@ -15,7 +17,7 @@ static const unsigned long CHECK_SENSORS_TIME = 200UL; // Check sensors every 10
 static const unsigned long REVERSE_MOTOR_TIME = 1000UL; // Reverse motor direction every 1 sec
 
 // Define array for all timed functions
-static const int NUM_TIMED_FUNCTIONS = 3;
+static const int NUM_TIMED_FUNCTIONS = 4;
 static TimedFunction* timed_function_arr[NUM_TIMED_FUNCTIONS];
 
 void setup_timed_functions()
@@ -26,9 +28,13 @@ void setup_timed_functions()
   tf_fade_led.callback = &SX1509_fade_led;
   timed_function_arr[i++] = &tf_fade_led;
 
-  tf_get_sensors.expire_time = CHECK_SENSORS_TIME;
-  tf_get_sensors.callback = &ADS1015_get_all_channels;
-  timed_function_arr[i++] = &tf_get_sensors;
+  tf_get_adc_sensors.expire_time = CHECK_SENSORS_TIME;
+  tf_get_adc_sensors.callback = &ADS1015_get_all_channels;
+  timed_function_arr[i++] = &tf_get_adc_sensors;
+
+  tf_get_accel_data.expire_time = CHECK_SENSORS_TIME;
+  tf_get_accel_data.callback = &BMA400_get_all_channels;
+  timed_function_arr[i++] = &tf_get_accel_data;
 
   tf_reverse_motor.expire_time = REVERSE_MOTOR_TIME;
   tf_reverse_motor.callback = &SX1509_reverse_motor;

@@ -3,11 +3,13 @@
 #include "src/TimedFunction.h"
 #include "src/SX1509/SX1509.h"
 #include "src/ADS1015/ADS1015.h"
+#include "src/BMA400/BMA400.h"
 
 // SparkFun Libraries
 #include <Arduino.h>
 #include <esp_camera.h>
 #include <SparkFun_ADS1015_Arduino_Library.h>
+#include <SparkFun_BMA400_Arduino_Library.h>
 #include <SparkFunSX1509.h>
 #include <WiFi.h>
 #include <Wire.h>
@@ -21,7 +23,7 @@ void startCameraServer();
 void setupLedFlash();
 
 // Webserver global variables
-volatile float sensorValueArr[4];
+volatile float sensorValueArr[NUM_SENSORS];
 volatile uint16_t buttonValue = 0;
 
 void setup() {
@@ -40,6 +42,17 @@ void setup() {
   else
   {
     Serial.println("ADS1015 Device not found. Check wiring.");
+    while (1); // stall out forever
+  }
+
+  // Initialize BMA400 Accelerometer
+  if (accelerometer.beginI2C(BMA400_ADDRESS) == BMA400_OK)
+  {
+    Serial.println("BMA400 Device found. I2C connections are good.");
+  }
+  else
+  {
+    Serial.println("BMA400 Device not found. Check wiring.");
     while (1); // stall out forever
   }
 
@@ -174,11 +187,15 @@ void loop() {
     buttonValue = 0;
   }
 
-  // Update sensor values for webserver with the ADC read values scaled to [0, 1]
-  for(int i=0; i<NUM_ADC_CHANNELS; i++)
-  {
-    sensorValueArr[i] = adcScaledArr[i];
-  }
+  // Update sensor values for webserver with various sensor data
+  int i = 0;
+  sensorValueArr[i++] = adcScaledArr[0];
+  sensorValueArr[i++] = adcScaledArr[1];
+  sensorValueArr[i++] = adcScaledArr[2];
+  sensorValueArr[i++] = adcScaledArr[3];
+  sensorValueArr[i++] = bma400ValueArr[0];
+  sensorValueArr[i++] = bma400ValueArr[1];
+  sensorValueArr[i++] = bma400ValueArr[2];
   
   // Call specific functions at desired time intervals without blocking the main loop()
   check_timed_functions();

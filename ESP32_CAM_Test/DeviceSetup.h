@@ -6,8 +6,13 @@
 // ===========================
 // Enter your WiFi credentials
 // ===========================
-inline constexpr char *ssid = "********";
-inline constexpr char *password = "********";
+inline constexpr char *ssid = "LogIntoMordor";
+inline constexpr char *password = "1network2rule";
+
+// ===========================
+// Total number of sensors for webserver reporting
+// ===========================
+inline constexpr uint32_t NUM_SENSORS = 7;
 
 // ===========================
 // Define ESP32 I2C pins and frequency
@@ -32,5 +37,11 @@ inline constexpr uint8_t SX1509_PWMA_PIN = 11;
 inline constexpr uint8_t SX1509_AI1_PIN = 10;
 inline constexpr uint8_t SX1509_AI2_PIN = 9;
 inline constexpr uint8_t SX1509_STBY_PIN = 8;
+
+// ===========================
+// Define BMA400 I2C address and pin usage
+// ===========================
+inline constexpr uint8_t BMA400_ADDRESS = 0x14; // default BMA400 I2C address
+
 
 #endif
