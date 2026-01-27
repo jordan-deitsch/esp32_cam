@@ -13,8 +13,8 @@ void BMA400_get_all_channels()
 {
   accelerometer.getSensorData();
   bma400ValueArr[0] = accelerometer.data.accelX;
-  bma400ValueArr[1] = accelerometer.data.accelX;
-  bma400ValueArr[2] = accelerometer.data.accelX;
+  bma400ValueArr[1] = accelerometer.data.accelY;
+  bma400ValueArr[2] = accelerometer.data.accelZ;
 }
 
 void BMA400_print_all_channels()

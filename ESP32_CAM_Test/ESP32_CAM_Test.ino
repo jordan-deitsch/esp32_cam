@@ -193,9 +193,9 @@ void loop() {
   sensorValueArr[i++] = adcScaledArr[1];
   sensorValueArr[i++] = adcScaledArr[2];
   sensorValueArr[i++] = adcScaledArr[3];
-  sensorValueArr[i++] = bma400ValueArr[0];
-  sensorValueArr[i++] = bma400ValueArr[1];
-  sensorValueArr[i++] = bma400ValueArr[2];
+  sensorValueArr[i++] = accelerometer.data.accelX;
+  sensorValueArr[i++] = accelerometer.data.accelY;
+  sensorValueArr[i++] = accelerometer.data.accelZ;
   
   // Call specific functions at desired time intervals without blocking the main loop()
   check_timed_functions();
