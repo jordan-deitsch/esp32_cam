@@ -667,21 +667,27 @@ static esp_err_t index_handler(httpd_req_t *req) {
   }
 }
 
-extern volatile float sensorValueArr[4];
+extern volatile float sensorValueArr[7];
 
 static esp_err_t sensor_handler(httpd_req_t *req) {
-  char json[128];
+  char json[1024];
   snprintf(json, sizeof(json),
             "{"
-            "\"sensor_a0\": %f,"
-            "\"sensor_a1\": %f,"
-            "\"sensor_a2\": %f,"
-            "\"sensor_a3\": %f"
+            "\"sensor_0\": %f,"
+            "\"sensor_1\": %f,"
+            "\"sensor_2\": %f,"
+            "\"sensor_3\": %f,"
+            "\"sensor_4\": %f,"
+            "\"sensor_5\": %f,"
+            "\"sensor_6\": %f"
             "}",
             sensorValueArr[0],
             sensorValueArr[1],
             sensorValueArr[2],
-            sensorValueArr[3]);
+            sensorValueArr[3],
+            sensorValueArr[4],
+            sensorValueArr[5],
+            sensorValueArr[6]);
 
     httpd_resp_set_type(req, "application/json");
     httpd_resp_send(req, json, HTTPD_RESP_USE_STRLEN);
@@ -702,20 +708,26 @@ static esp_err_t status_page_handler(httpd_req_t *req) {
         "</head>"
         "<body>"
         "<h2>ESP32-CAM Status</h2>"
-        "<p>Sensor 1: <span id='val1'>---</span></p>"
-        "<p>Sensor 2: <span id='val2'>---</span></p>"
-        "<p>Sensor 3: <span id='val3'>---</span></p>"
-        "<p>Sensor 4: <span id='val4'>---</span></p>"
+        "<p>Sensor 1: <span id='val0'>---</span></p>"
+        "<p>Sensor 2: <span id='val1'>---</span></p>"
+        "<p>Sensor 3: <span id='val2'>---</span></p>"
+        "<p>Sensor 4: <span id='val3'>---</span></p>"
+        "<p>Sensor 5: <span id='val4'>---</span></p>"
+        "<p>Sensor 6: <span id='val5'>---</span></p>"
+        "<p>Sensor 7: <span id='val6'>---</span></p>"
 
         "<script>"
         "setInterval(() => {"
         "  fetch('/sensor_json')"
         "    .then(r => r.json())"
         "    .then(d => {"
-        "      document.getElementById('val1').innerText = d.sensor_a0.toFixed(3);"
-        "      document.getElementById('val2').innerText = d.sensor_a1.toFixed(3);"
-        "      document.getElementById('val3').innerText = d.sensor_a2.toFixed(3);"
-        "      document.getElementById('val4').innerText = d.sensor_a3.toFixed(3);"
+        "      document.getElementById('val0').innerText = d.sensor_a0.toFixed(3);"
+        "      document.getElementById('val1').innerText = d.sensor_a1.toFixed(3);"
+        "      document.getElementById('val2').innerText = d.sensor_a2.toFixed(3);"
+        "      document.getElementById('val3').innerText = d.sensor_a3.toFixed(3);"
+        "      document.getElementById('val4').innerText = d.sensor_a4.toFixed(3);"
+        "      document.getElementById('val5').innerText = d.sensor_a5.toFixed(3);"
+        "      document.getElementById('val6').innerText = d.sensor_a6.toFixed(3);"
         "    });"
         "}, 500);"
         "</script>"
@@ -746,7 +758,7 @@ static esp_err_t status_page_handler(httpd_req_t *req) {
 extern volatile uint16_t buttonValue;
 
 static esp_err_t control_handler(httpd_req_t *req) {
-  char buf[100];
+  char buf[128];
   size_t buf_len = httpd_req_get_url_query_len(req) + 1;
 
   if (buf_len > sizeof(buf)) {

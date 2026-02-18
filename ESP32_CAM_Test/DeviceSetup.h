@@ -6,8 +6,8 @@
 // ===========================
 // Enter your WiFi credentials
 // ===========================
-inline constexpr char *ssid = "********";
-inline constexpr char *password = "********";
+inline constexpr char *ssid = "LogIntoMordor";
+inline constexpr char *password = "1network2rule";
 
 // ===========================
 // Define ESP32 I2C pins and frequency

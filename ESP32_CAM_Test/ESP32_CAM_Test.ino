@@ -21,7 +21,7 @@ void startCameraServer();
 void setupLedFlash();
 
 // Webserver global variables
-volatile float sensorValueArr[4];
+volatile float sensorValueArr[7];
 volatile uint16_t buttonValue = 0;
 
 void setup() {
@@ -33,30 +33,30 @@ void setup() {
   Serial.println("Starting setup...");
 
   // Initialize ADC
-  if (adcSensor.begin(ADS1015_ADDRESS) == true)
-  {
-    Serial.println("ADS1015 Device found. I2C connections are good.");
-  }
-  else
-  {
-    Serial.println("ADS1015 Device not found. Check wiring.");
-    while (1); // stall out forever
-  }
+  // if (adcSensor.begin(ADS1015_ADDRESS) == true)
+  // {
+  //   Serial.println("ADS1015 Device found. I2C connections are good.");
+  // }
+  // else
+  // {
+  //   Serial.println("ADS1015 Device not found. Check wiring.");
+  //   while (1); // stall out forever
+  // }
 
   // Initialize GPIO expander
-  if (gpio.begin(SX1509_ADDRESS) == true)
-  {
-    Serial.println("SX1509 Device found. I2C connections are good.");
-    SX1509_setup();
-  }
-  else
-  {
-    Serial.println("SX1509 Device not found. Check wiring.");
-    while (1); // stall out forever
-  }
+  // if (gpio.begin(SX1509_ADDRESS) == true)
+  // {
+  //   Serial.println("SX1509 Device found. I2C connections are good.");
+  //   SX1509_setup();
+  // }
+  // else
+  // {
+  //   Serial.println("SX1509 Device not found. Check wiring.");
+  //   while (1); // stall out forever
+  // }
 
   // Setup the timed functions
-  setup_timed_functions();
+  // setup_timed_functions();
 
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
@@ -162,6 +162,8 @@ void setup() {
   Serial.println("' to connect");
 }
 
+static float val = 1.0f;
+
 void loop() {
   
   //
@@ -175,13 +177,21 @@ void loop() {
   }
 
   // Update sensor values for webserver with the ADC read values scaled to [0, 1]
-  for(int i=0; i<NUM_ADC_CHANNELS; i++)
+  // for(int i=0; i<NUM_ADC_CHANNELS; i++)
+  // {
+  //   sensorValueArr[i] = adcScaledArr[i];
+  // }
+
+  for(int i=0; i<7; i++)
   {
-    sensorValueArr[i] = adcScaledArr[i];
+    sensorValueArr[i] = val;
+    val += 1.1234f;
   }
+
+  delay(50);
   
   // Call specific functions at desired time intervals without blocking the main loop()
-  check_timed_functions();
+  // check_timed_functions();
 }
 
 
