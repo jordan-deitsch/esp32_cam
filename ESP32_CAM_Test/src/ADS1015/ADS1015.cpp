@@ -1,12 +1,14 @@
 #include "ADS1015.h"
 
 // Externs
-ADS1015 adcSensor;
+ADS1115 adcSensor(ADC_ADDRESS);
+
 volatile uint16_t adcValueArr[NUM_ADC_CHANNELS];
 volatile float adcScaledArr[NUM_ADC_CHANNELS];
 
 // Static Constants
-static const uint32_t MAX_VALUE_SINGLE_END = 2047;
+// static const uint32_t MAX_VALUE_SINGLE_END = 0x7fff;
+static const uint16_t MAX_VALUE_SINGLE_END = 17580; // Experimental, connect A0 to VCC for max single ended reading
 static const float ADC_VCC = 3.3f;
 static const float VOLT_PER_LSB = ADC_VCC / (float)MAX_VALUE_SINGLE_END;
 
@@ -19,11 +21,11 @@ void ADS1015_get_all_channels()
   
   for (int i=0; i<NUM_ADC_CHANNELS; i++)
   {
-    adcSensor.getSingleEnded(i);  // Dummy read to confirm address register is set
-    sensorRead = adcSensor.getSingleEnded(i);
+    adcSensor.readADC(i);  // Dummy read to confirm address register is set
+    sensorRead = adcSensor.readADC(i);
     if (sensorRead > MAX_VALUE_SINGLE_END)
     {
-      sensorRead = 0;
+      sensorRead = MAX_VALUE_SINGLE_END;
     }
     adcValueArr[i] = sensorRead;
     adcScaledArr[i] = (float)adcValueArr[i] / (float)MAX_VALUE_SINGLE_END;
@@ -34,7 +36,8 @@ void ADS1015_print_all_channels()
 {
   for (int i=0; i<NUM_ADC_CHANNELS; i++)
   {
-    Serial.printf("Value %d: %d  ", i, adcValueArr[i]);
+    Serial.printf("Value %d: %.2f  ", i, adcScaledArr[i]);
+    // Serial.printf("Value %d: %d  ", i, adcValueArr[i]);
   }
   Serial.println();
 }

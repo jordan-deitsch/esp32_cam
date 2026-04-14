@@ -19,12 +19,12 @@ inline constexpr uint32_t I2C_FREQUENCY = 200000;
 // ===========================
 // Define ADS1015 I2C address and pin usage
 // ===========================
-inline constexpr uint8_t ADS1015_ADDRESS = 0x48; // ADS1015 I2C address: set by ADDR pin
+inline constexpr uint8_t ADC_ADDRESS = 0x48; // ADS1015 I2C address: set by ADDR pin
 
 // ===========================
 // Define BME280 I2C address and pin usage
 // ===========================
-inline constexpr uint8_t BME280_ADDRESS = 0x77; // BME280 I2C address: set by ADDR pin
+inline constexpr uint8_t BME280_ADDRESS = 0x76; // BME280 I2C address: set by ADDR pin
 
 // ===========================
 // Define motor driver board pin usage

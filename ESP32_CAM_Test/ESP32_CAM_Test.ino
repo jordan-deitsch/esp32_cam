@@ -9,7 +9,7 @@
 // SparkFun Libraries
 #include <Arduino.h>
 #include <esp_camera.h>
-#include <SparkFun_ADS1015_Arduino_Library.h>
+#include <ADS1X15.h>
 #include <SparkFunBME280.h>
 
 
@@ -41,27 +41,27 @@ void setup() {
 
   Serial.println("Starting setup...");
 
- bme280sensor.setI2CAddress(BME280_ADDRESS);
- if(bme280sensor.beginI2C() == true)
-{
- Serial.println("BME280 sensor found. I2C connections are good.");
-}
- else
- {
-   Serial.println("BME280 Device not found. Check wiring.");
-   while (1); // stall out forever
- }
+  bme280sensor.setI2CAddress(BME280_ADDRESS);
+  if(bme280sensor.beginI2C() == true)
+  {
+    Serial.println("BME280 sensor found. I2C connections are good.");
+  }
+  else
+  {
+    Serial.println("BME280 Device not found. Check wiring.");
+    while (1); // stall out forever
+  }
 
- // Initialize ADC
- if (adcSensor.begin(ADS1015_ADDRESS) == true)
- {
-   Serial.println("ADS1015 Device found. I2C connections are good.");
- }
- else
- {
-   Serial.println("ADS1015 Device not found. Check wiring.");
-   while (1); // stall out forever
- }
+  // Initialize ADC
+  if (adcSensor.begin() == true)
+  {
+    Serial.println("ADS1015 Device found. I2C connections are good.");
+  }
+  else
+  {
+    Serial.println("ADS1015 Device not found. Check wiring.");
+    while (1); // stall out forever
+  }
 
   // Setup the timed functions
   setup_timed_functions();
@@ -198,26 +198,30 @@ void loop() {
 
   ADS1015_get_all_channels();
  if(adcScaledArr[1]<0.9f){
-   Serial.println("Low gravity");
-   //SX1509_motor_time(2000);
-   myStepper.step(10);
+  //  Serial.println("Low gravity");
+  //  myStepper.step(10);
   }
 
   if(adcScaledArr[0]>0.8f){
-     Serial.println("Low moisture");
-   //  SX1509_motor_time(2000);
-   myStepper.step(10);
+    // Serial.println("Low moisture");
+    // myStepper.step(10);
   } 
 
-  print_bme_data();
-  
-  ADS1015_print_all_channels();
+  // print_bme_data();
+  // ADS1015_print_all_channels();
+
   delay(200);
 
 
   
   // Call specific functions at desired time intervals without blocking the main loop()
   //check_timed_functions();
+}
+
+int calculate_gravity()
+{
+  int no_grav = 0;
+  return 0;
 }
 
 
