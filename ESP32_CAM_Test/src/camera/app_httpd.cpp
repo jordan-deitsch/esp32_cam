@@ -667,23 +667,29 @@ static esp_err_t index_handler(httpd_req_t *req) {
   }
 }
 
-extern volatile float sensorValueArr[7];
+extern volatile float serverValueArr[8];
 
 static esp_err_t sensor_handler(httpd_req_t *req) {
-  char json[1024];
+  char json[2048];
   snprintf(json, sizeof(json),
             "{"
-            "\"sensor_a0\": %f,"
-            "\"sensor_a1\": %f,"
-            "\"sensor_a4\": %f,"
-            "\"sensor_a5\": %f,"
-            "\"sensor_a6\": %f"
+            "\"server_val0\": %f,"
+            "\"server_val1\": %f,"
+            "\"server_val2\": %f,"
+            "\"server_val3\": %f,"
+            "\"server_val4\": %f,"
+            "\"server_val5\": %f,"
+            "\"server_val6\": %f"
+            "\"server_val7\": %f"
             "}",
-            sensorValueArr[0],
-            sensorValueArr[1],
-            sensorValueArr[4],
-            sensorValueArr[5],
-            sensorValueArr[6]);
+            serverValueArr[0],
+            serverValueArr[1],
+            serverValueArr[2],
+            serverValueArr[3],
+            serverValueArr[4],
+            serverValueArr[5],
+            serverValueArr[6],
+            serverValueArr[7]);
 
     httpd_resp_set_type(req, "application/json");
     httpd_resp_send(req, json, HTTPD_RESP_USE_STRLEN);
@@ -704,8 +710,11 @@ static esp_err_t status_page_handler(httpd_req_t *req) {
         "</head>"
         "<body>"
         "<h2>ESP32-CAM Status</h2>"
-        "<p>Moisture: <span id='val1'>---</span></p>"
-        "<p>Gravity Z: <span id='val2'>---</span></p>"
+        "<p>Total Gravity: <span id='val0'>---</span></p>"
+        "<p>Gravity X: <span id='val1'>---</span></p>"
+        "<p>Gravity Y: <span id='val2'>---</span></p>"
+        "<p>Gravity Z: <span id='val3'>---</span></p>"
+        "<p>Moisture: <span id='val4'>---</span></p>"
         "<p>Humidity: <span id='val5'>---</span></p>"
         "<p>Pressure: <span id='val6'>---</span></p>"
         "<p>Temperature: <span id='val7'>---</span></p>"
@@ -715,13 +724,16 @@ static esp_err_t status_page_handler(httpd_req_t *req) {
         "  fetch('/sensor_json')"
         "    .then(r => r.json())"
         "    .then(d => {"
-        "      document.getElementById('val1').innerText = d.sensor_a0.toFixed(3);"
-        "      document.getElementById('val2').innerText = d.sensor_a1.toFixed(3);"
-        "      document.getElementById('val5').innerText = d.sensor_a4.toFixed(3);"
-        "      document.getElementById('val6').innerText = d.sensor_a5.toFixed(3);"
-        "      document.getElementById('val7').innerText = d.sensor_a6.toFixed(3);"
+        "      document.getElementById('val0').innerText = d.server_val0.toFixed(3);"
+        "      document.getElementById('val1').innerText = d.server_val1.toFixed(3);"
+        "      document.getElementById('val2').innerText = d.server_val2.toFixed(3);"
+        "      document.getElementById('val3').innerText = d.server_val3.toFixed(3);"
+        "      document.getElementById('val4').innerText = d.server_val4.toFixed(3);"
+        "      document.getElementById('val5').innerText = d.server_val5.toFixed(3);"
+        "      document.getElementById('val6').innerText = d.server_val6.toFixed(3);"
+        "      document.getElementById('val7').innerText = d.server_val7.toFixed(3);"
         "    });"
-        "}, 500);"
+        "}, 200);"
         "</script>"
 
         "<button onclick=\"sendCommand()\">Toggle Button</button>"

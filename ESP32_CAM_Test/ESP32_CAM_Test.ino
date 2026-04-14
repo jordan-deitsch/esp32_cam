@@ -12,7 +12,6 @@
 #include <ADS1X15.h>
 #include <SparkFunBME280.h>
 
-
 // ===========================
 // Select camera model in board_config.h
 // ===========================
@@ -22,16 +21,17 @@ void startCameraServer();
 void setupLedFlash();
 
 // User functions
-int check_gravity();
+double calculate_gravity();
 void print_bme_data();
 
 // Webserver global variables
-volatile float sensorValueArr[7];
+volatile float serverValueArr[8];
 volatile uint16_t buttonValue = 0;
 
 // User devices
 BME280 bme280sensor; 
-Stepper myStepper = Stepper(stepsPerRevolution, MOTOR_PIN_1, MOTOR_PIN_2, MOTOR_PIN_3, MOTOR_PIN_4);
+Stepper myStepper = Stepper(stepsPerRevolution, MOTOR_PIN_2, MOTOR_PIN_4);
+// Stepper myStepper = Stepper(stepsPerRevolution, MOTOR_PIN_1, MOTOR_PIN_2, MOTOR_PIN_3, MOTOR_PIN_4);
 
 void setup() {
   Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN, I2C_FREQUENCY);
@@ -42,6 +42,7 @@ void setup() {
 
   Serial.println("Starting setup...");
 
+  // Initialize BME280 sensor
   bme280sensor.setI2CAddress(BME280_ADDRESS);
   if(bme280sensor.beginI2C() == true)
   {
@@ -183,21 +184,15 @@ void loop() {
     buttonValue = 0;
   }
 
-  // Update sensor values for webserver with the ADC read values scaled to [0, 1]
-  for(int i=0; i<NUM_ADC_CHANNELS; i++)
-  {
-    sensorValueArr[i] = adcScaledArr[i];
-  }
-
-  sensorValueArr[4] = (float)bme280sensor.readFloatHumidity();
-  sensorValueArr[5] = (float)bme280sensor.readFloatPressure();
-  sensorValueArr[6] = (float)bme280sensor.readTempF();
-
+  // Read all data from 
   ADS1015_get_all_channels();
   
   // Check gravity
-  if(check_gravity() == 0){
-    Serial.println("Low gravity");
+  double gravity = calculate_gravity();
+  if(gravity < 0.8f){
+    Serial.print("Low gravity: ");
+    Serial.printf("%.3f", gravity);
+    Serial.println();
     myStepper.step(stepsPerRevolution);
   }
 
@@ -207,46 +202,49 @@ void loop() {
     Serial.printf("%d = %.3f", adcValueArr[3], adcScaledArr[3]);
     Serial.println();
     myStepper.step(stepsPerRevolution);
-  } 
+  }
+
+  // Update sensor values for webserver with the ADC read values scaled to [0, 1]
+  serverValueArr[0] = (float)gravity;   // Total gravity
+  serverValueArr[1] = adcScaledArr[0];  // Gravity X
+  serverValueArr[2] = adcScaledArr[1];  // Gravity Y
+  serverValueArr[3] = adcScaledArr[2];  // Gravity Z
+  serverValueArr[4] = adcScaledArr[3];  // Moisture
+  serverValueArr[5] = (float)bme280sensor.readFloatHumidity();
+  serverValueArr[6] = (float)bme280sensor.readFloatPressure();
+  serverValueArr[7] = (float)bme280sensor.readTempF();
 
   // print_bme_data();
   // ADS1015_print_all_channels();
 
-  delay(200);
-
-
-  
   // Call specific functions at desired time intervals without blocking the main loop()
   //check_timed_functions();
+
+  delay(200);
 }
 
-// If low gravity will return 0
-int check_gravity()
+// Calculate total gravity from X-Y-Z components
+double calculate_gravity()
 {
-  double zero_bias_cal[3] = {0.498f, 0.492f, 0.525f};
+  double zero_bias_cal[3] = {0.498f, 0.492f, 0.525f}; // Each channel has slightly different offsets
   double one_g_scale = 0.1f;
-  double low_grav_threshold = 0.7f;
-  double total_accel = sqrt(sq(adcScaledArr[0] - zero_bias_cal[0]) + 
+
+  // Use standard distance formula to calculate gravity from x-y-z components
+  double total_grav = sqrt( sq(adcScaledArr[0] - zero_bias_cal[0]) + 
                             sq(adcScaledArr[1] - zero_bias_cal[1]) + 
-                            sq(adcScaledArr[2] - zero_bias_cal[2])) / one_g_scale;
+                            sq(adcScaledArr[2] - zero_bias_cal[2])    ) / one_g_scale;
 
   // for (int i=0; i<NUM_ADC_CHANNELS-1; i++)
   // {
   //   Serial.printf("Axis %d: %.3f  ", i, adcScaledArr[i]);
   // }
-  // Serial.printf("Gravity: %f", total_accel);
+  // Serial.printf("Gravity: %f", total_grav);
   // Serial.println();
-
-  if(total_accel < low_grav_threshold)
-  {
-    return 0;
-  }
   
-  return 1;
-  
+  return total_grav;
 }
 
-
+// Print all BME280 data to serial port
  void print_bme_data()
 {
   Serial.print("Humidity: ");

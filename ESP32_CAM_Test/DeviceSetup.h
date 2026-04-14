@@ -12,8 +12,8 @@ inline constexpr char *password = "b1ysfp1jsdix5";
 // ===========================
 // Define ESP32 I2C pins and frequency
 // ===========================
-inline constexpr uint32_t I2C_SDA_PIN = 14;
 inline constexpr uint32_t I2C_SCL_PIN = 13;
+inline constexpr uint32_t I2C_SDA_PIN = 14;
 inline constexpr uint32_t I2C_FREQUENCY = 200000;
 
 // ===========================
@@ -30,12 +30,11 @@ inline constexpr uint8_t BME280_ADDRESS = 0x76; // BME280 I2C address: set by AD
 // Define motor driver board pin usage
 // ===========================
 const int stepsPerRevolution = 2048;
+inline constexpr uint8_t MOTOR_PIN_2 = 2;   // Wire color: Blue
+inline constexpr uint8_t MOTOR_PIN_4 = 12;  // Cire color: Green
 
-inline constexpr uint8_t MOTOR_PIN_1 = 4;   // Color: Yellow -> NOT WORKING, likely due to LED
-inline constexpr uint8_t MOTOR_PIN_2 = 2;   // Color: Blue
-inline constexpr uint8_t MOTOR_PIN_3 = 15;  // Color: White
-inline constexpr uint8_t MOTOR_PIN_4 = 12;  // Color: Green
-
-// TODO: stepper will spin when Yellow and White are removed (only one drive pair)
+// TODO: stepper will spin when Yellow and White are removed (only one drive pair), issues driving motor pin 1
+inline constexpr uint8_t MOTOR_PIN_1 = 0;   // Wire color: Yellow -> NOT WORKING, tested on both IO0 and IO4
+inline constexpr uint8_t MOTOR_PIN_3 = 15;  // Wire color: White
 
 #endif
