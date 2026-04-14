@@ -31,9 +31,11 @@ inline constexpr uint8_t BME280_ADDRESS = 0x76; // BME280 I2C address: set by AD
 // ===========================
 const int stepsPerRevolution = 2048;
 
-inline constexpr uint8_t MOTOR_PIN_1 = 4;   // Color: 
-inline constexpr uint8_t MOTOR_PIN_2 = 2;   // Color: 
-inline constexpr uint8_t MOTOR_PIN_3 = 15;  // Color: 
-inline constexpr uint8_t MOTOR_PIN_4 = 12;  // Color: 
+inline constexpr uint8_t MOTOR_PIN_1 = 4;   // Color: Yellow -> NOT WORKING, likely due to LED
+inline constexpr uint8_t MOTOR_PIN_2 = 2;   // Color: Blue
+inline constexpr uint8_t MOTOR_PIN_3 = 15;  // Color: White
+inline constexpr uint8_t MOTOR_PIN_4 = 12;  // Color: Green
+
+// TODO: stepper will spin when Yellow and White are removed (only one drive pair)
 
 #endif

@@ -198,7 +198,7 @@ void loop() {
   // Check gravity
   if(check_gravity() == 0){
     Serial.println("Low gravity");
-    // myStepper.step(10);
+    myStepper.step(stepsPerRevolution);
   }
 
   // Check moisture level
@@ -206,7 +206,7 @@ void loop() {
     Serial.print("Low moisture: ");
     Serial.printf("%d = %.3f", adcValueArr[3], adcScaledArr[3]);
     Serial.println();
-    // myStepper.step(10);
+    myStepper.step(stepsPerRevolution);
   } 
 
   // print_bme_data();
