@@ -3,7 +3,6 @@
 #include <Wire.h>
 #include "DeviceSetup.h"
 #include "src/TimedFunction.h"
-//#include "src/SX1509/SX1509.h"
 #include "src/ADS1015/ADS1015.h"
 #include "Stepper.h"
 
@@ -11,7 +10,6 @@
 #include <Arduino.h>
 #include <esp_camera.h>
 #include <SparkFun_ADS1015_Arduino_Library.h>
-//#include <SparkFunSX1509.h>
 #include <SparkFunBME280.h>
 
 
@@ -23,15 +21,16 @@
 void startCameraServer();
 void setupLedFlash();
 
+// User functions
 void print_bme_data();
 
 // Webserver global variables
 volatile float sensorValueArr[7];
 volatile uint16_t buttonValue = 0;
 
+// User devices
 BME280 bme280sensor; 
-const int stepsPerRevolution = 2048;
-Stepper myStepper = Stepper(stepsPerRevolution, 4, 2, 14, 15);
+Stepper myStepper = Stepper(stepsPerRevolution, MOTOR_PIN_1, MOTOR_PIN_2, MOTOR_PIN_3, MOTOR_PIN_4);
 
 void setup() {
   Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN, I2C_FREQUENCY);
@@ -42,41 +41,27 @@ void setup() {
 
   Serial.println("Starting setup...");
 
-//  bme280sensor.setI2CAddress(0x77);
-//  if(bme280sensor.beginI2C() == true)
-// {
-//  Serial.println("BME280 sensor found. I2C connections are good.");
-// }
-//  else
-//  {
-//    Serial.println("BME280 Device not found. Check wiring.");
-//    while (1); // stall out forever
-//  }
-//
-//  // Initialize ADC
-//  if (adcSensor.begin(ADS1015_ADDRESS) == true)
-//  {
-//    Serial.println("ADS1015 Device found. I2C connections are good.");
-//  }
-//  else
-//  {
-//    Serial.println("ADS1015 Device not found. Check wiring.");
-//    while (1); // stall out forever
-//  }
+ bme280sensor.setI2CAddress(BME280_ADDRESS);
+ if(bme280sensor.beginI2C() == true)
+{
+ Serial.println("BME280 sensor found. I2C connections are good.");
+}
+ else
+ {
+   Serial.println("BME280 Device not found. Check wiring.");
+   while (1); // stall out forever
+ }
 
-//  // Initialize GPIO expander
-//  if (gpio.begin(SX1509_ADDRESS) == true)
-// {
-//   Serial.println("SX1509 Device found. I2C connections are good.");
-//   SX1509_setup();
-//  }
-//  else
-//  {
-//    Serial.println("SX1509 Device not found. Check wiring.");
-//    while (1); // stall out forever
-//  }
-
-
+ // Initialize ADC
+ if (adcSensor.begin(ADS1015_ADDRESS) == true)
+ {
+   Serial.println("ADS1015 Device found. I2C connections are good.");
+ }
+ else
+ {
+   Serial.println("ADS1015 Device not found. Check wiring.");
+   while (1); // stall out forever
+ }
 
   // Setup the timed functions
   setup_timed_functions();
@@ -190,12 +175,10 @@ void loop() {
   //
   // ADD MAIN LOOP CODE HERE
   //
-  Serial.println("Motor forward");
-  myStepper.step(100);
-  myStepper.step(-100);
-}
 
-void TEMP(){
+  // Serial.println("Motor forward");
+  // myStepper.step(100);
+  // myStepper.step(-100);
 
   // Check webserver for button updates and perform and desired actions
   if(buttonValue != 0) {
@@ -226,7 +209,7 @@ void TEMP(){
    myStepper.step(10);
   } 
 
-  //print_bme_data();
+  print_bme_data();
   
   ADS1015_print_all_channels();
   delay(200);
