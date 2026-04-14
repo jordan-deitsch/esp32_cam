@@ -194,13 +194,18 @@ void loop() {
   sensorValueArr[6] = (float)bme280sensor.readTempF();
 
   ADS1015_get_all_channels();
- if(check_gravity() == 0){
+  
+  // Check gravity
+  if(check_gravity() == 0){
     Serial.println("Low gravity");
     // myStepper.step(10);
   }
 
-  if(adcScaledArr[3]>0.8f){
-    Serial.println("Low moisture");
+  // Check moisture level
+  if(adcScaledArr[3] > 0.8f){
+    Serial.print("Low moisture: ");
+    Serial.printf("%d = %.3f", adcValueArr[3], adcScaledArr[3]);
+    Serial.println();
     // myStepper.step(10);
   } 
 

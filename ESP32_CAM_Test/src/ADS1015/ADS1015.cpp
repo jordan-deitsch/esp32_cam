@@ -8,6 +8,7 @@ volatile float adcScaledArr[NUM_ADC_CHANNELS];
 
 // Static Constants
 // static const uint32_t MAX_VALUE_SINGLE_END = 0x7fff;
+static const uint16_t MAX_POSITIVE_VALUE = 0x7fff;
 static const uint16_t MAX_VALUE_SINGLE_END = 17580; // Experimental, connect A0 to VCC for max single ended reading
 static const float ADC_VCC = 3.3f;
 static const float VOLT_PER_LSB = ADC_VCC / (float)MAX_VALUE_SINGLE_END;
@@ -23,10 +24,17 @@ void ADS1015_get_all_channels()
   {
     adcSensor.readADC(i);  // Dummy read to confirm address register is set
     sensorRead = adcSensor.readADC(i);
-    if (sensorRead > MAX_VALUE_SINGLE_END)
+    
+    // Check limits of ADC single-ended reading
+    if (sensorRead > MAX_POSITIVE_VALUE)
+    {
+        sensorRead = 0;
+    }
+    else if (sensorRead > MAX_VALUE_SINGLE_END)
     {
       sensorRead = MAX_VALUE_SINGLE_END;
     }
+
     adcValueArr[i] = sensorRead;
     adcScaledArr[i] = (float)adcValueArr[i] / (float)MAX_VALUE_SINGLE_END;
   }
