@@ -11,6 +11,7 @@
 #include <esp_camera.h>
 #include <ADS1X15.h>
 #include <SparkFunBME280.h>
+#include <Adafruit_NeoPixel.h>
 
 // ===========================
 // Select camera model in board_config.h
@@ -23,6 +24,8 @@ void setupLedFlash();
 // User functions
 double calculate_gravity();
 void print_bme_data();
+void update_led_from_sensor(float sensor_val);
+void set_neopixel_color(uint8_t red, uint8_t green, uint8_t blue);
 
 // Webserver global variables
 volatile float serverValueArr[8];
@@ -30,6 +33,7 @@ volatile uint16_t buttonValue = 0;
 
 // User devices
 BME280 bme280sensor; 
+Adafruit_NeoPixel strip(NEOPIXEL_COUNT, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
 Stepper myStepper = Stepper(stepsPerRevolution, MOTOR_PIN_2, MOTOR_PIN_4);
 // Stepper myStepper = Stepper(stepsPerRevolution, MOTOR_PIN_1, MOTOR_PIN_2, MOTOR_PIN_3, MOTOR_PIN_4);
 
@@ -41,6 +45,10 @@ void setup() {
   myStepper.setSpeed(5);
 
   Serial.println("Starting setup...");
+
+  // Setup Neopixel strip with constant color
+  strip.begin();
+  set_neopixel_color(255, 255, 255);
 
   // Initialize BME280 sensor
   bme280sensor.setI2CAddress(BME280_ADDRESS);
@@ -204,6 +212,9 @@ void loop() {
     myStepper.step(stepsPerRevolution);
   }
 
+  // Set Neopixel color dynamically
+  update_led_from_sensor(adcScaledArr[3]);  // Set LED light based on moisture level
+
   // Update sensor values for webserver with the ADC read values scaled to [0, 1]
   serverValueArr[0] = (float)gravity;   // Total gravity
   serverValueArr[1] = adcScaledArr[0];  // Gravity X
@@ -258,4 +269,36 @@ double calculate_gravity()
   // Serial.print(mySensorA.readTempC(), 2);
 
   Serial.println();
+}
+
+// Dynamically set NeoPixel strip color based on sensor value
+void update_led_from_sensor(float sensor_val)
+{
+  // Verify that sensor value is percentage within range [0.0, 1.0]
+  if(sensor_val > 1.0f)
+  {
+    sensor_val = 1.0f;
+  }
+  else if(sensor_val < 0.0f)
+  {
+    sensor_val = 0.0f;
+  }
+
+  float max_value = 255.0f;
+  float red_val = max_value * (1.0f - sensor_val);  // 0% = all red
+  float blue_val = max_value * sensor_val;        // 100% = all blue
+
+  set_neopixel_color((uint8_t)red_val, 0, (uint8_t)blue_val);
+}
+
+
+// Colors in RGB, with each color in range [0, 255]
+void set_neopixel_color(uint8_t red, uint8_t green, uint8_t blue)
+{
+  for(int i=0; i<NEOPIXEL_COUNT; i++)
+  {
+    strip.setPixelColor(i, red, green, blue);
+  }
+
+  strip.show();
 }

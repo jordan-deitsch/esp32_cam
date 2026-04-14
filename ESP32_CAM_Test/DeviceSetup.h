@@ -27,6 +27,12 @@ inline constexpr uint8_t ADC_ADDRESS = 0x48; // ADS1015 I2C address: set by ADDR
 inline constexpr uint8_t BME280_ADDRESS = 0x76; // BME280 I2C address: set by ADDR pin
 
 // ===========================
+// Define  address and pin usage
+// ===========================
+const int NEOPIXEL_COUNT = 9;
+inline constexpr uint8_t NEOPIXEL_PIN = 16;
+
+// ===========================
 // Define motor driver board pin usage
 // ===========================
 const int stepsPerRevolution = 2048;
