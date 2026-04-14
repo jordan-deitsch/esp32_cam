@@ -22,6 +22,7 @@ void startCameraServer();
 void setupLedFlash();
 
 // User functions
+int check_gravity();
 void print_bme_data();
 
 // Webserver global variables
@@ -176,10 +177,6 @@ void loop() {
   // ADD MAIN LOOP CODE HERE
   //
 
-  // Serial.println("Motor forward");
-  // myStepper.step(100);
-  // myStepper.step(-100);
-
   // Check webserver for button updates and perform and desired actions
   if(buttonValue != 0) {
     Serial.println("Button Pressed");
@@ -197,13 +194,13 @@ void loop() {
   sensorValueArr[6] = (float)bme280sensor.readTempF();
 
   ADS1015_get_all_channels();
- if(adcScaledArr[1]<0.9f){
-  //  Serial.println("Low gravity");
-  //  myStepper.step(10);
+ if(check_gravity() == 0){
+    Serial.println("Low gravity");
+    // myStepper.step(10);
   }
 
-  if(adcScaledArr[0]>0.8f){
-    // Serial.println("Low moisture");
+  if(adcScaledArr[3]>0.8f){
+    Serial.println("Low moisture");
     // myStepper.step(10);
   } 
 
@@ -218,24 +215,44 @@ void loop() {
   //check_timed_functions();
 }
 
-int calculate_gravity()
+// If low gravity will return 0
+int check_gravity()
 {
-  int no_grav = 0;
-  return 0;
+  double zero_bias_cal[3] = {0.498f, 0.492f, 0.525f};
+  double one_g_scale = 0.1f;
+  double low_grav_threshold = 0.7f;
+  double total_accel = sqrt(sq(adcScaledArr[0] - zero_bias_cal[0]) + 
+                            sq(adcScaledArr[1] - zero_bias_cal[1]) + 
+                            sq(adcScaledArr[2] - zero_bias_cal[2])) / one_g_scale;
+
+  // for (int i=0; i<NUM_ADC_CHANNELS-1; i++)
+  // {
+  //   Serial.printf("Axis %d: %.3f  ", i, adcScaledArr[i]);
+  // }
+  // Serial.printf("Gravity: %f", total_accel);
+  // Serial.println();
+
+  if(total_accel < low_grav_threshold)
+  {
+    return 0;
+  }
+  
+  return 1;
+  
 }
 
 
  void print_bme_data()
 {
-  Serial.print("HumidityA: ");
+  Serial.print("Humidity: ");
   Serial.print(bme280sensor.readFloatHumidity(), 0);
 
-  Serial.print(" PressureA: ");
+  Serial.print(" Pressure: ");
   Serial.print(bme280sensor.readFloatPressure(), 0);
 
-  Serial.print(" TempA: ");
-  //Serial.print(mySensorA.readTempC(), 2);
+  Serial.print(" Temp: ");
   Serial.print(bme280sensor.readTempF(), 2);
+  // Serial.print(mySensorA.readTempC(), 2);
 
   Serial.println();
 }
