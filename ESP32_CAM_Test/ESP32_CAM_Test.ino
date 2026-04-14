@@ -1,16 +1,19 @@
 // User defined sources
+#include <WiFi.h>
+#include <Wire.h>
 #include "DeviceSetup.h"
 #include "src/TimedFunction.h"
-#include "src/SX1509/SX1509.h"
+//#include "src/SX1509/SX1509.h"
 #include "src/ADS1015/ADS1015.h"
+#include "Stepper.h"
 
 // SparkFun Libraries
 #include <Arduino.h>
 #include <esp_camera.h>
 #include <SparkFun_ADS1015_Arduino_Library.h>
-#include <SparkFunSX1509.h>
-#include <WiFi.h>
-#include <Wire.h>
+//#include <SparkFunSX1509.h>
+#include <SparkFunBME280.h>
+
 
 // ===========================
 // Select camera model in board_config.h
@@ -20,40 +23,60 @@
 void startCameraServer();
 void setupLedFlash();
 
+void print_bme_data();
+
 // Webserver global variables
-volatile float sensorValueArr[4];
+volatile float sensorValueArr[7];
 volatile uint16_t buttonValue = 0;
+
+BME280 bme280sensor; 
+const int stepsPerRevolution = 2048;
+Stepper myStepper = Stepper(stepsPerRevolution, 4, 2, 14, 15);
 
 void setup() {
   Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN, I2C_FREQUENCY);
   Serial.begin(115200);
   Serial.setDebugOutput(true);
   Serial.println();
+  myStepper.setSpeed(5);
 
   Serial.println("Starting setup...");
 
-  // Initialize ADC
-  if (adcSensor.begin(ADS1015_ADDRESS) == true)
-  {
-    Serial.println("ADS1015 Device found. I2C connections are good.");
-  }
-  else
-  {
-    Serial.println("ADS1015 Device not found. Check wiring.");
-    while (1); // stall out forever
-  }
+//  bme280sensor.setI2CAddress(0x77);
+//  if(bme280sensor.beginI2C() == true)
+// {
+//  Serial.println("BME280 sensor found. I2C connections are good.");
+// }
+//  else
+//  {
+//    Serial.println("BME280 Device not found. Check wiring.");
+//    while (1); // stall out forever
+//  }
+//
+//  // Initialize ADC
+//  if (adcSensor.begin(ADS1015_ADDRESS) == true)
+//  {
+//    Serial.println("ADS1015 Device found. I2C connections are good.");
+//  }
+//  else
+//  {
+//    Serial.println("ADS1015 Device not found. Check wiring.");
+//    while (1); // stall out forever
+//  }
 
-  // Initialize GPIO expander
-  if (gpio.begin(SX1509_ADDRESS) == true)
-  {
-    Serial.println("SX1509 Device found. I2C connections are good.");
-    SX1509_setup();
-  }
-  else
-  {
-    Serial.println("SX1509 Device not found. Check wiring.");
-    while (1); // stall out forever
-  }
+//  // Initialize GPIO expander
+//  if (gpio.begin(SX1509_ADDRESS) == true)
+// {
+//   Serial.println("SX1509 Device found. I2C connections are good.");
+//   SX1509_setup();
+//  }
+//  else
+//  {
+//    Serial.println("SX1509 Device not found. Check wiring.");
+//    while (1); // stall out forever
+//  }
+
+
 
   // Setup the timed functions
   setup_timed_functions();
@@ -108,7 +131,7 @@ void setup() {
 
 #if defined(CAMERA_MODEL_ESP_EYE)
   pinMode(13, INPUT_PULLUP);
-  pinMode(14, INPUT_PULLUP);
+  pinMode(12, INPUT_PULLUP);
 #endif
 
   // camera init
@@ -167,6 +190,12 @@ void loop() {
   //
   // ADD MAIN LOOP CODE HERE
   //
+  Serial.println("Motor forward");
+  myStepper.step(100);
+  myStepper.step(-100);
+}
+
+void TEMP(){
 
   // Check webserver for button updates and perform and desired actions
   if(buttonValue != 0) {
@@ -179,9 +208,47 @@ void loop() {
   {
     sensorValueArr[i] = adcScaledArr[i];
   }
+
+  sensorValueArr[4] = (float)bme280sensor.readFloatHumidity();
+  sensorValueArr[5] = (float)bme280sensor.readFloatPressure();
+  sensorValueArr[6] = (float)bme280sensor.readTempF();
+
+  ADS1015_get_all_channels();
+ if(adcScaledArr[1]<0.9f){
+   Serial.println("Low gravity");
+   //SX1509_motor_time(2000);
+   myStepper.step(10);
+  }
+
+  if(adcScaledArr[0]>0.8f){
+     Serial.println("Low moisture");
+   //  SX1509_motor_time(2000);
+   myStepper.step(10);
+  } 
+
+  //print_bme_data();
+  
+  ADS1015_print_all_channels();
+  delay(200);
+
+
   
   // Call specific functions at desired time intervals without blocking the main loop()
-  check_timed_functions();
+  //check_timed_functions();
 }
 
 
+ void print_bme_data()
+{
+  Serial.print("HumidityA: ");
+  Serial.print(bme280sensor.readFloatHumidity(), 0);
+
+  Serial.print(" PressureA: ");
+  Serial.print(bme280sensor.readFloatPressure(), 0);
+
+  Serial.print(" TempA: ");
+  //Serial.print(mySensorA.readTempC(), 2);
+  Serial.print(bme280sensor.readTempF(), 2);
+
+  Serial.println();
+}

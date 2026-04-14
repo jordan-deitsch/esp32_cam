@@ -6,14 +6,14 @@
 // ===========================
 // Enter your WiFi credentials
 // ===========================
-inline constexpr char *ssid = "********";
-inline constexpr char *password = "********";
+inline constexpr char *ssid = "iPhone";
+inline constexpr char *password = "angelmaiaiphone21";
 
 // ===========================
 // Define ESP32 I2C pins and frequency
 // ===========================
 inline constexpr uint32_t I2C_SDA_PIN = 13;
-inline constexpr uint32_t I2C_SCL_PIN = 14;
+inline constexpr uint32_t I2C_SCL_PIN = 12;
 inline constexpr uint32_t I2C_FREQUENCY = 200000;
 
 // ===========================
