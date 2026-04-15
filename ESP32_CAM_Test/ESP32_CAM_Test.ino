@@ -3,12 +3,13 @@
 #include <Wire.h>
 #include "DeviceSetup.h"
 #include "src/ADS1015/ADS1015.h"
-#include "Stepper.h"
+#include "src/SX1509/SX1509.h"
 
 // SparkFun Libraries
 #include <Arduino.h>
 #include <esp_camera.h>
 #include <ADS1X15.h>
+#include <SparkFunSX1509.h>
 #include <SparkFunBME280.h>
 #include <Adafruit_NeoPixel.h>
 
@@ -33,16 +34,37 @@ volatile uint16_t buttonValue = 0;
 // User devices
 BME280 bme280sensor; 
 Adafruit_NeoPixel strip(NEOPIXEL_COUNT, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
-Stepper myStepper = Stepper(stepsPerRevolution, MOTOR_PIN_2, MOTOR_PIN_4);
 
 void setup() {
   Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN, I2C_FREQUENCY);
   Serial.begin(115200);
   Serial.setDebugOutput(true);
   Serial.println();
-  myStepper.setSpeed(5);
 
   Serial.println("Starting setup...");
+
+  // Initialize ADC
+  if (adcSensor.begin() == true)
+  {
+    Serial.println("ADS1015 device found. I2C connections are good.");
+  }
+  else
+  {
+    Serial.println("ADS1015 device not found. Check wiring.");
+    while (1); // stall out forever
+  }
+
+  // Initialize GPIO expander
+  if (gpio.begin(SX1509_ADDRESS) == true)
+  {
+    Serial.println("SX1509 device found. I2C connections are good.");
+    SX1509_setup();
+  }
+  else
+  {
+    Serial.println("SX1509 device not found. Check wiring.");
+    while (1); // stall out forever
+  }
 
   // Initialize BME280 sensor
   bme280sensor.setI2CAddress(BME280_ADDRESS);
@@ -53,17 +75,6 @@ void setup() {
   else
   {
     Serial.println("BME280 device not found. Check wiring.");
-    while (1); // stall out forever
-  }
-
-  // Initialize ADC
-  if (adcSensor.begin() == true)
-  {
-    Serial.println("ADS1015 device found. I2C connections are good.");
-  }
-  else
-  {
-    Serial.println("ADS1015 device not found. Check wiring.");
     while (1); // stall out forever
   }
 
@@ -187,7 +198,7 @@ void loop() {
   if(buttonValue != 0) {
     Serial.println("Button Pressed");
     buttonValue = 0;
-    myStepper.step(stepsPerRevolution);
+    SX1509_stepper_move(STEPPER_STEPS_PER_REV);
   }
 
   // Read all data from ADC
@@ -199,7 +210,7 @@ void loop() {
     Serial.print("Low gravity: ");
     Serial.printf("%.3f", gravity);
     Serial.println();
-    myStepper.step(stepsPerRevolution);
+    SX1509_stepper_move(STEPPER_STEPS_PER_REV);
   }
 
   // Check moisture level
@@ -207,7 +218,7 @@ void loop() {
     Serial.print("Low moisture: ");
     Serial.printf("%d = %.3f", adcValueArr[3], adcScaledArr[3]);
     Serial.println();
-    myStepper.step(stepsPerRevolution);
+    SX1509_stepper_move(STEPPER_STEPS_PER_REV);
   }
 
   // Set Neopixel color dynamically
@@ -225,7 +236,7 @@ void loop() {
 
   // print_bme_data();
   // ADS1015_print_all_channels();
-
+  
   delay(200);
 }
 
