@@ -6,8 +6,8 @@
 // ===========================
 // Enter your WiFi credentials
 // ===========================
-inline constexpr char *ssid = "Jordan's iPhone";
-inline constexpr char *password = "b1ysfp1jsdix5";
+inline constexpr char *ssid = "LogIntoMordor";
+inline constexpr char *password = "1network2rule";
 
 // ===========================
 // Define ESP32 I2C pins and frequency
@@ -30,7 +30,7 @@ inline constexpr uint8_t BME280_ADDRESS = 0x76; // BME280 I2C address: set by AD
 // Define  address and pin usage
 // ===========================
 const int NEOPIXEL_COUNT = 9;
-inline constexpr uint8_t NEOPIXEL_PIN = 16;
+inline constexpr uint8_t NEOPIXEL_PIN = 15;
 
 // ===========================
 // Define motor driver board pin usage
@@ -40,7 +40,7 @@ inline constexpr uint8_t MOTOR_PIN_2 = 2;   // Wire color: Blue
 inline constexpr uint8_t MOTOR_PIN_4 = 12;  // Cire color: Green
 
 // TODO: stepper will spin when Yellow and White are removed (only one drive pair), issues driving motor pin 1
-inline constexpr uint8_t MOTOR_PIN_1 = 0;   // Wire color: Yellow -> NOT WORKING, tested on both IO0 and IO4
-inline constexpr uint8_t MOTOR_PIN_3 = 15;  // Wire color: White
+// inline constexpr uint8_t MOTOR_PIN_1 = 0;   // Wire color: Yellow -> NOT WORKING, tested on both IO0 and IO4
+// inline constexpr uint8_t MOTOR_PIN_3 = 15;  // Wire color: White
 
 #endif

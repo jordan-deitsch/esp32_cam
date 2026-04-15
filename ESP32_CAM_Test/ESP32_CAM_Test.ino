@@ -2,7 +2,6 @@
 #include <WiFi.h>
 #include <Wire.h>
 #include "DeviceSetup.h"
-#include "src/TimedFunction.h"
 #include "src/ADS1015/ADS1015.h"
 #include "Stepper.h"
 
@@ -35,7 +34,6 @@ volatile uint16_t buttonValue = 0;
 BME280 bme280sensor; 
 Adafruit_NeoPixel strip(NEOPIXEL_COUNT, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
 Stepper myStepper = Stepper(stepsPerRevolution, MOTOR_PIN_2, MOTOR_PIN_4);
-// Stepper myStepper = Stepper(stepsPerRevolution, MOTOR_PIN_1, MOTOR_PIN_2, MOTOR_PIN_3, MOTOR_PIN_4);
 
 void setup() {
   Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN, I2C_FREQUENCY);
@@ -46,35 +44,28 @@ void setup() {
 
   Serial.println("Starting setup...");
 
-  // Setup Neopixel strip with constant color
-  strip.begin();
-  set_neopixel_color(255, 255, 255);
-
   // Initialize BME280 sensor
   bme280sensor.setI2CAddress(BME280_ADDRESS);
   if(bme280sensor.beginI2C() == true)
   {
-    Serial.println("BME280 sensor found. I2C connections are good.");
+    Serial.println("BME280 device found. I2C connections are good.");
   }
   else
   {
-    Serial.println("BME280 Device not found. Check wiring.");
+    Serial.println("BME280 device not found. Check wiring.");
     while (1); // stall out forever
   }
 
   // Initialize ADC
   if (adcSensor.begin() == true)
   {
-    Serial.println("ADS1015 Device found. I2C connections are good.");
+    Serial.println("ADS1015 device found. I2C connections are good.");
   }
   else
   {
-    Serial.println("ADS1015 Device not found. Check wiring.");
+    Serial.println("ADS1015 device not found. Check wiring.");
     while (1); // stall out forever
   }
-
-  // Setup the timed functions
-  setup_timed_functions();
 
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
@@ -111,10 +102,12 @@ void setup() {
       config.jpeg_quality = 10;
       config.fb_count = 2;
       config.grab_mode = CAMERA_GRAB_LATEST;
+      Serial.println("PSRAM Found");
     } else {
       // Limit the frame size when PSRAM is not available
       config.frame_size = FRAMESIZE_SVGA;
       config.fb_location = CAMERA_FB_IN_DRAM;
+      Serial.println("PSRAM Missing");
     }
   } else {
     // Best option for face detection/recognition
@@ -178,6 +171,10 @@ void setup() {
   Serial.print("Camera Ready! Use 'http://");
   Serial.print(WiFi.localIP());
   Serial.println("' to connect");
+
+  // Setup Neopixel strip with constant color
+  strip.begin();
+  strip.show();
 }
 
 void loop() {
@@ -186,13 +183,14 @@ void loop() {
   // ADD MAIN LOOP CODE HERE
   //
 
-  // Check webserver for button updates and perform and desired actions
+  // Check webserver for button updates and perform any desired actions
   if(buttonValue != 0) {
     Serial.println("Button Pressed");
     buttonValue = 0;
+    myStepper.step(stepsPerRevolution);
   }
 
-  // Read all data from 
+  // Read all data from ADC
   ADS1015_get_all_channels();
   
   // Check gravity
@@ -213,7 +211,7 @@ void loop() {
   }
 
   // Set Neopixel color dynamically
-  update_led_from_sensor(adcScaledArr[3]);  // Set LED light based on moisture level
+  update_led_from_sensor(adcScaledArr[3]);  // Set color based on moisture level
 
   // Update sensor values for webserver with the ADC read values scaled to [0, 1]
   serverValueArr[0] = (float)gravity;   // Total gravity
@@ -227,9 +225,6 @@ void loop() {
 
   // print_bme_data();
   // ADS1015_print_all_channels();
-
-  // Call specific functions at desired time intervals without blocking the main loop()
-  //check_timed_functions();
 
   delay(200);
 }
@@ -287,6 +282,9 @@ void update_led_from_sensor(float sensor_val)
   float max_value = 255.0f;
   float red_val = max_value * (1.0f - sensor_val);  // 0% = all red
   float blue_val = max_value * sensor_val;        // 100% = all blue
+
+  // Serial.printf("Blue Light Value: %f", blue_val);
+  // Serial.println();
 
   set_neopixel_color((uint8_t)red_val, 0, (uint8_t)blue_val);
 }

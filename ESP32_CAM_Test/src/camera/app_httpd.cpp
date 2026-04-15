@@ -670,7 +670,7 @@ static esp_err_t index_handler(httpd_req_t *req) {
 extern volatile float serverValueArr[8];
 
 static esp_err_t sensor_handler(httpd_req_t *req) {
-  char json[2048];
+  char json[1024];
   snprintf(json, sizeof(json),
             "{"
             "\"server_val0\": %f,"
@@ -679,7 +679,7 @@ static esp_err_t sensor_handler(httpd_req_t *req) {
             "\"server_val3\": %f,"
             "\"server_val4\": %f,"
             "\"server_val5\": %f,"
-            "\"server_val6\": %f"
+            "\"server_val6\": %f,"
             "\"server_val7\": %f"
             "}",
             serverValueArr[0],
@@ -710,7 +710,7 @@ static esp_err_t status_page_handler(httpd_req_t *req) {
         "</head>"
         "<body>"
         "<h2>ESP32-CAM Status</h2>"
-        "<p>Total Gravity: <span id='val0'>---</span></p>"
+        "<p>Gravity: <span id='val0'>---</span></p>"
         "<p>Gravity X: <span id='val1'>---</span></p>"
         "<p>Gravity Y: <span id='val2'>---</span></p>"
         "<p>Gravity Z: <span id='val3'>---</span></p>"
@@ -733,7 +733,7 @@ static esp_err_t status_page_handler(httpd_req_t *req) {
         "      document.getElementById('val6').innerText = d.server_val6.toFixed(3);"
         "      document.getElementById('val7').innerText = d.server_val7.toFixed(3);"
         "    });"
-        "}, 200);"
+        "}, 500);"
         "</script>"
 
         "<button onclick=\"sendCommand()\">Toggle Button</button>"
