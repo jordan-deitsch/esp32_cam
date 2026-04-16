@@ -262,7 +262,7 @@ double calculate_gravity()
 }
 
 // Print all BME280 data to serial port
- void print_bme_data()
+void print_bme_data()
 {
   Serial.print("Humidity: ");
   Serial.print(bme280sensor.readFloatHumidity(), 0);
@@ -291,8 +291,8 @@ void update_led_from_sensor(float sensor_val)
   }
 
   float max_value = 255.0f;
-  float red_val = max_value * (1.0f - sensor_val);  // 0% = all red
-  float blue_val = max_value * sensor_val;        // 100% = all blue
+  float red_val = max_value * sensor_val;           // 100% = all red (dry)
+  float blue_val = max_value * (1.0f - sensor_val); // 0% = all blue (wet)
 
   // Serial.printf("Blue Light Value: %f", blue_val);
   // Serial.println();

@@ -54,12 +54,16 @@ void SX1509_stepper_move(int num_steps)
     return;
   }
 
+  Serial.print("Turning motor... ");
+
   for(int i=0; i<abs(num_steps); i++)
   {
     SX1509_stepper_shift(num_steps);
     SX1509_stepper_set_phases();
     delay(step_time_msec);
   }
+
+  Serial.println("DONE");
 }
 
 void SX1509_set_stepper_speed(int speed_rpm)
