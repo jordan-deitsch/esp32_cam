@@ -29,7 +29,8 @@ void set_neopixel_color(uint8_t red, uint8_t green, uint8_t blue);
 
 // Webserver global variables
 volatile float serverValueArr[8];
-volatile uint16_t buttonValue = 0;
+volatile uint16_t buttonValue1 = 0;
+volatile uint16_t buttonValue2 = 0;
 
 // User devices
 BME280 bme280sensor; 
@@ -195,10 +196,16 @@ void loop() {
   //
 
   // Check webserver for button updates and perform any desired actions
-  if(buttonValue != 0) {
-    Serial.println("Button Pressed");
-    buttonValue = 0;
-    SX1509_stepper_move(STEPPER_STEPS_PER_REV);
+  if(buttonValue1 != 0) {
+    Serial.println("Button: Motor Normal");
+    buttonValue1 = 0;
+    SX1509_stepper_move(STEPPER_BUTTON_STEPS);
+  }
+
+  if(buttonValue2 != 0) {
+    Serial.println("Button: Retract Motor");
+    buttonValue2 = 0;
+    SX1509_stepper_move(-STEPPER_BUTTON_STEPS);
   }
 
   // Read all data from ADC
@@ -210,7 +217,6 @@ void loop() {
     Serial.print("Low gravity: ");
     Serial.printf("%.3f", gravity);
     Serial.println();
-    SX1509_stepper_move(STEPPER_STEPS_PER_REV);
   }
 
   // Check moisture level
@@ -218,7 +224,6 @@ void loop() {
     Serial.print("Low moisture: ");
     Serial.printf("%d = %.3f", adcValueArr[3], adcScaledArr[3]);
     Serial.println();
-    SX1509_stepper_move(STEPPER_STEPS_PER_REV);
   }
 
   // Set Neopixel color dynamically

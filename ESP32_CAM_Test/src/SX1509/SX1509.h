@@ -5,6 +5,7 @@
 #include <SparkFunSX1509.h>
 
 const uint16_t STEPPER_STEPS_PER_REV = 4096;  // Half-steps per full revolution
+const uint16_t STEPPER_BUTTON_STEPS = 500;    // Tune this as needed
 
 // External Variables
 extern SX1509 gpio;

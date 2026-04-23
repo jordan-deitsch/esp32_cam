@@ -736,13 +736,27 @@ static esp_err_t status_page_handler(httpd_req_t *req) {
         "}, 500);"
         "</script>"
 
-        "<button onclick=\"sendCommand()\">Toggle Button</button>"
+        "<button onclick=\"sendButton1()\">Motor Normal</button>"
+        "<button onclick=\"sendButton2()\">Retract Motor</button>"
+
         "<script>"
-        "function sendCommand() {"
-        "  fetch('/button_control?cmd=toggle_button')"
+        "function sendButton1() {"
+        "  fetch('/button_control?cmd=button1')"
         "    .then(response => response.text())"
         "    .then(data => {"
-        "      console.log('Response:', data);"
+        "      console.log('Button_1:', data);"
+        "    })"
+        "    .catch(error => {"
+        "      console.error('Error:', error);"
+        "      alert('Failed to send command.');"
+        "    });"
+        "}"
+
+        "function sendButton2() {"
+        "  fetch('/button_control?cmd=button2')"
+        "    .then(response => response.text())"
+        "    .then(data => {"
+        "      console.log('Button_2:', data);"
         "    })"
         "    .catch(error => {"
         "      console.error('Error:', error);"
@@ -759,7 +773,8 @@ static esp_err_t status_page_handler(httpd_req_t *req) {
     return ESP_OK;
 }
 
-extern volatile uint16_t buttonValue;
+extern volatile uint16_t buttonValue1;
+extern volatile uint16_t buttonValue2;
 
 static esp_err_t control_handler(httpd_req_t *req) {
   char buf[100];
@@ -771,12 +786,21 @@ static esp_err_t control_handler(httpd_req_t *req) {
   if (httpd_req_get_url_query_str(req, buf, buf_len) == ESP_OK) {
     char param[32];
     if (httpd_query_key_value(buf, "cmd", param, sizeof(param)) == ESP_OK) {
-      if (strcmp(param, "toggle_button") == 0) {
+
+      if (strcmp(param, "button1") == 0) {
         // Set buttonValue variable that is polled by main loop
-        buttonValue = 1;
-        httpd_resp_sendstr(req, "Button toggled");
+        buttonValue1 = 1;
+        httpd_resp_sendstr(req, "Button 1 toggled");
         return ESP_OK;
       }
+
+      else if (strcmp(param, "button2") == 0) {
+        // Set buttonValue variable that is polled by main loop
+        buttonValue2 = 1;
+        httpd_resp_sendstr(req, "Button 2 toggled");
+        return ESP_OK;
+      }
+
     }
   }
   httpd_resp_sendstr(req, "Invalid command");
@@ -968,7 +992,7 @@ void startCameraServer() {
     httpd_register_uri_handler(camera_httpd, &greg_uri);
     httpd_register_uri_handler(camera_httpd, &pll_uri);
     httpd_register_uri_handler(camera_httpd, &win_uri);
-    
+
     httpd_register_uri_handler(camera_httpd, &sensor_json_uri);
     httpd_register_uri_handler(camera_httpd, &sensor_data_uri);
     httpd_register_uri_handler(camera_httpd, &control_uri);
